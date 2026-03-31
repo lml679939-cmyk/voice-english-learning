@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<meta name="description" content="靠聲音學英文 - 專為視力不佳長者設計">
+<title>靠聲音學英文</title>
+<link rel="manifest" href="#" id="manifest-link">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #111111;
+    color: #FFFF00;
+    font-size: 26px;
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  .btn-primary {
+    background: #1a6b1a;
+    color: #FFFF00;
+    border: 3px solid #FFFF00;
+    border-radius: 20px;
+    padding: 24px 32px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin: 10px 0;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: rgba(255,255,0,0.3);
+  }
+  .btn-primary:hover, .btn-primary:active {
+    background: #2a9b2a;
+    transform: scale(1.02);
+  }
+  .btn-secondary {
+    background: #1a1a6b;
+    color: #FFFFFF;
+    border: 3px solid #AAAAFF;
+    border-radius: 20px;
+    padding: 20px 28px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin: 8px 0;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover, .btn-secondary:active {
+    background: #2a2aab;
+  }
+  .btn-danger {
+    background: #6b1a1a;
+    color: #FFAAAA;
+    border: 3px solid #FF6666;
+    border-radius: 20px;
+    padding: 20px 28px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin: 8px 0;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+  .btn-danger:hover, .btn-danger:active {
+    background: #9b2a2a;
+  }
+  .btn-warning {
+    background: #6b5a00;
+    color: #FFEE44;
+    border: 3px solid #FFCC00;
+    border-radius: 20px;
+    padding: 20px 28px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin: 8px 0;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+  .btn-warning:hover, .btn-warning:active {
+    background: #9b8500;
+  }
+  .page { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
+  .word-display {
+    font-size: 64px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 32px;
+    background: #222222;
+    border-radius: 20px;
+    border: 3px solid #FFFF00;
+    margin: 20px 0;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .status-box {
+    background: #222222;
+    border: 3px solid #444444;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 16px 0;
+    font-size: 24px;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .status-box.listening {
+    border-color: #FF4444;
+    background: #330000;
+    animation: pulse 1s infinite;
+  }
+  .status-box.success {
+    border-color: #44FF44;
+    background: #003300;
+    color: #88FF88;
+  }
+  .status-box.warning {
+    border-color: #FFCC00;
+    background: #332200;
+    color: #FFCC00;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .progress-bar {
+    width: 100%;
+    height: 32px;
+    background: #333333;
+    border-radius: 16px;
+    border: 2px solid #555555;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1a6b1a, #44FF44);
+    border-radius: 16px;
+    transition: width 0.5s;
+  }
+  .section-title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #FFFF00;
+    text-align: center;
+    padding: 16px 0;
+    border-bottom: 2px solid #444444;
+    margin-bottom: 20px;
+  }
+  .home-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #6b1a1a;
+    color: #FFAAAA;
+    border: 3px solid #FF6666;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(255,100,100,0.4);
+  }
+  .mic-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #333;
+    border: 3px solid #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    z-index: 999;
+  }
+  .mic-indicator.active {
+    background: #660000;
+    border-color: #FF4444;
+    animation: pulse 0.8s infinite;
+  }
+  .card {
+    background: #1a1a1a;
+    border: 2px solid #333333;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 12px 0;
+  }
+  .big-icon { font-size: 48px; }
+  select {
+    background: #222222;
+    color: #FFFFFF;
+    border: 3px solid #555555;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 22px;
+    width: 100%;
+    margin: 8px 0;
+  }
+  input[type="range"] {
+    width: 100%;
+    height: 40px;
+    margin: 12px 0;
+    accent-color: #FFFF00;
+  }
+  label { font-size: 22px; color: #CCCCCC; display: block; margin-top: 12px; }
+  .voice-cmd-hint {
+    background: #1a1a1a;
+    border: 1px solid #333333;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 18px;
+    color: #888888;
+    margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- 麥克風狀態指示 -->
+<div class="mic-indicator" id="micIndicator" title="麥克風狀態">🎙️</div>
+
+<!-- 緊急返回按鈕 -->
+<button class="home-btn" onclick="goHome()" aria-label="返回首頁（說回家）" title="返回首頁">🏠</button>
+
+<!-- ===== 首頁 ===== -->
+<div id="page-home" class="page active">
+  <div class="section-title">🌟 靠聲音學英文 🌟</div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:28px; color:#AAAAAA;">今日學習目標</div>
+    <div style="font-size:48px; font-weight:bold; color:#FFFF00;" id="dailyProgress">0 / 5</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div style="font-size:20px; color:#888888;" id="streakInfo">連續學習：0 天</div>
+  </div>
+
+  <button class="btn-primary" onclick="navigateTo('lessons')" aria-label="開始課程">
+    <span class="big-icon">📚</span> 開始課程
+  </button>
+  <button class="btn-primary" onclick="navigateTo('pronunciation')" aria-label="發音練習">
+    <span class="big-icon">🔊</span> 發音練習
+  </button>
+  <button class="btn-primary" onclick="navigateTo('conversation')" aria-label="對話練習">
+    <span class="big-icon">💬</span> 對話練習
+  </button>
+  <button class="btn-secondary" onclick="navigateTo('listening')" aria-label="聽力練習">
+    <span class="big-icon">👂</span> 聽力練習
+  </button>
+  <button class="btn-warning" onclick="navigateTo('settings')" aria-label="設定">
+    <span class="big-icon">⚙️</span> 設定
+  </button>
+
+  <div class="voice-cmd-hint">
+    💡 語音指令：「開始課程」「發音練習」「對話練習」「聽力練習」「設定」
+  </div>
+</div>
+
+<!-- ===== 課程中心 ===== -->
+<div id="page-lessons" class="page">
+  <div class="section-title">📚 課程中心</div>
+  <div id="lessonMenu">
+    <div style="font-size:28px; color:#AAAAAA; text-align:center; margin-bottom:8px;">旅遊英語課程</div>
+    <div style="font-size:20px; color:#666; text-align:center; margin-bottom:16px;">多益 400–500 分程度，難度逐步提升</div>
+    <button class="btn-primary" onclick="startLesson('travel_basic')" aria-label="旅遊基礎">
+      <span class="big-icon">✈️</span> 旅遊基礎（機場・飯店・交通）
+    </button>
+    <button class="btn-primary" onclick="startLesson('travel_advanced')" aria-label="進階旅遊">
+      <span class="big-icon">🌏</span> 進階旅遊（海關・投訴・要求）
+    </button>
+    <button class="btn-primary" onclick="startLesson('travel_pro')" aria-label="旅遊達人">
+      <span class="big-icon">🏆</span> 旅遊達人（緊急・議價・複雜情況）
+    </button>
+    <button class="btn-secondary" onclick="goHome()" aria-label="返回首頁">⬅️ 返回首頁</button>
+    <div class="voice-cmd-hint">💡 說「旅遊基礎」「進階旅遊」「旅遊達人」選課，說「返回」回首頁</div>
+  </div>
+
+  <div id="lessonContent" style="display:none;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:22px; color:#AAAAAA;" id="lessonLevelLabel">初級課程</div>
+      <div style="font-size:28px; color:#888888;" id="lessonCounter">第 1 題 / 共 10 題</div>
+      <div class="progress-bar"><div class="progress-fill" id="lessonProgress" style="width:0%"></div></div>
+    </div>
+    <div class="word-display" id="lessonWord">準備中...</div>
+    <div style="font-size:24px; color:#CCCCCC; text-align:center; padding:8px;" id="lessonTranslation"></div>
+    <div class="status-box" id="lessonStatus">準備開始</div>
+    <button class="btn-primary" onclick="speakCurrentLesson()" aria-label="再聽一次">🔊 再聽一次</button>
+    <button class="btn-warning" onclick="speakCurrentLessonSlow()" aria-label="慢速播放">🐢 慢速播放</button>
+    <button class="btn-primary" onclick="startLessonRecording()" id="lessonRecordBtn" aria-label="開始跟讀">🎙️ 開始跟讀</button>
+    <button class="btn-secondary" onclick="skipLessonWord()" aria-label="跳過此題">⏭️ 跳過此題</button>
+    <button class="btn-danger" onclick="endLesson()" aria-label="結束課程">🏠 結束課程</button>
+    <div class="voice-cmd-hint">💡 說「跟讀」開始錄音，「下一題」跳過，「再說一次」重播</div>
+  </div>
+</div>
+
+<!-- ===== 發音練習 ===== -->
+<div id="page-pronunciation" class="page">
+  <div class="section-title">🔊 發音練習</div>
+
+  <div id="pronMenu">
+    <div style="font-size:24px; color:#AAAAAA; text-align:center; margin-bottom:16px;">旅遊發音練習 — 選擇類別</div>
+    <button class="btn-primary" onclick="startPronunciation('airport')" aria-label="機場用語">✈️ 機場用語（Boarding pass / Check-in）</button>
+    <button class="btn-primary" onclick="startPronunciation('hotel')" aria-label="飯店住宿">🏨 飯店住宿（Reservation / Room service）</button>
+    <button class="btn-primary" onclick="startPronunciation('restaurant')" aria-label="餐廳點餐">🍽️ 餐廳點餐（Menu / Allergy / Bill）</button>
+    <button class="btn-primary" onclick="startPronunciation('shopping')" aria-label="購物殺價">🛍️ 購物殺價（Discount / Tax refund）</button>
+    <button class="btn-primary" onclick="startPronunciation('emergency')" aria-label="緊急狀況">🆘 緊急狀況（Lost passport / Medical）</button>
+    <button class="btn-secondary" onclick="goHome()" aria-label="返回首頁">⬅️ 返回首頁</button>
+    <div class="voice-cmd-hint">💡 說「機場」「飯店」「餐廳」「購物」「緊急」選類別</div>
+  </div>
+
+  <div id="pronContent" style="display:none;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:22px; color:#AAAAAA;" id="pronCategory">基本單字</div>
+      <div style="font-size:26px; color:#888888;" id="pronCounter">第 1 題 / 共 20 題</div>
+      <div class="progress-bar"><div class="progress-fill" id="pronProgress" style="width:0%"></div></div>
+      <div style="font-size:22px; color:#44FF44;">通過：<span id="pronScore">0</span> 題</div>
+    </div>
+    <div class="word-display" id="pronWord">準備中...</div>
+    <div style="font-size:22px; color:#CCCCCC; text-align:center; padding:8px;" id="pronMeaning"></div>
+    <div class="status-box" id="pronStatus">按下「聆聽」聽發音</div>
+    <button class="btn-primary" onclick="speakCurrentPron()" aria-label="聆聽發音">🔊 聆聽發音</button>
+    <button class="btn-warning" onclick="speakCurrentPronSlow()" aria-label="慢速重複">🐢 慢速重複</button>
+    <button class="btn-primary" onclick="startPronRecording()" id="pronRecordBtn" aria-label="開始跟讀">🎙️ 開始跟讀</button>
+    <button class="btn-secondary" onclick="nextPronWord()" aria-label="下一個">⏭️ 下一個</button>
+    <button class="btn-danger" onclick="endPronunciation()" aria-label="結束練習">🏠 結束練習</button>
+    <div class="voice-cmd-hint">💡 說「跟讀」錄音，「下一個」跳過，「慢速」慢速播放</div>
+  </div>
+</div>
+
+<!-- ===== 對話練習 ===== -->
+<div id="page-conversation" class="page">
+  <div class="section-title">💬 對話練習</div>
+
+  <div id="convMenu">
+    <div style="font-size:24px; color:#AAAAAA; text-align:center; margin-bottom:4px;">旅遊對話練習 — 自由選情境</div>
+    <div style="font-size:18px; color:#555; text-align:center; margin-bottom:14px;">12 個真實旅遊場景，可隨時選擇任一練習</div>
+    <button class="btn-primary" onclick="startConversation(0)" aria-label="機場報到">✈️ 機場報到 (Airport Check-in)</button>
+    <button class="btn-primary" onclick="startConversation(1)" aria-label="通關入境">🛂 通關入境 (Customs &amp; Immigration)</button>
+    <button class="btn-primary" onclick="startConversation(2)" aria-label="搭計程車">🚕 搭計程車 (Taking a Taxi)</button>
+    <button class="btn-primary" onclick="startConversation(3)" aria-label="飯店入住">🏨 飯店入住 (Hotel Check-in)</button>
+    <button class="btn-primary" onclick="startConversation(4)" aria-label="飯店問題">🛎️ 飯店問題 (Hotel Complaint)</button>
+    <button class="btn-primary" onclick="startConversation(5)" aria-label="餐廳點餐">🍽️ 餐廳點餐 (Restaurant Ordering)</button>
+    <button class="btn-primary" onclick="startConversation(6)" aria-label="購物殺價">🛍️ 購物殺價 (Shopping)</button>
+    <button class="btn-primary" onclick="startConversation(7)" aria-label="問路地圖">🗺️ 問路與地圖 (Asking Directions)</button>
+    <button class="btn-primary" onclick="startConversation(8)" aria-label="與外國人閒聊">👋 與外國人閒聊 (Small Talk)</button>
+    <button class="btn-primary" onclick="startConversation(9)" aria-label="景點買票">🎡 景點買票 (Buying Tickets)</button>
+    <button class="btn-primary" onclick="startConversation(10)" aria-label="搭地鐵">🚇 搭地鐵公車 (Public Transport)</button>
+    <button class="btn-danger" onclick="startConversation(11)" aria-label="緊急求助">🆘 緊急求助 (Emergency)</button>
+    <button class="btn-secondary" onclick="goHome()" aria-label="返回首頁">⬅️ 返回首頁</button>
+    <div class="voice-cmd-hint">💡 說「機場」「通關」「計程車」「飯店」「餐廳」「購物」「問路」「閒聊」「買票」「地鐵」「緊急」選情境</div>
+  </div>
+
+  <div id="convContent" style="display:none;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:28px; font-weight:bold; color:#FFFF00;" id="convTitle">點餐</div>
+      <div style="font-size:22px; color:#888888;" id="convCounter">第 1 步 / 共 6 步</div>
+      <div class="progress-bar"><div class="progress-fill" id="convProgress" style="width:0%"></div></div>
+    </div>
+    <div class="word-display" id="convPrompt" style="font-size:32px;">...</div>
+    <div style="font-size:22px; color:#AAAAAA; text-align:center; padding:8px;" id="convHint"></div>
+    <div class="status-box" id="convStatus">準備對話</div>
+    <button class="btn-primary" onclick="replayConvPrompt()" aria-label="再說一次">🔊 再說一次</button>
+    <button class="btn-primary" onclick="startConvRecording()" id="convRecordBtn" aria-label="我來回答">🎙️ 我來回答</button>
+    <button class="btn-warning" onclick="showConvHint()" aria-label="提示答案">💡 提示答案</button>
+    <button class="btn-secondary" onclick="nextConvStep()" aria-label="跳過此步">⏭️ 跳過此步</button>
+    <button class="btn-danger" onclick="endConversation()" aria-label="結束對話">🏠 結束對話</button>
+    <div class="voice-cmd-hint">💡 說「回答」開始錄音，「提示」看提示，「再說一次」重播</div>
+  </div>
+</div>
+
+<!-- ===== 聽力練習 ===== -->
+<div id="page-listening" class="page">
+  <div class="section-title">👂 聽力練習</div>
+
+  <div id="listMenu">
+    <div style="font-size:24px; color:#AAAAAA; text-align:center; margin-bottom:16px;">選擇練習類型</div>
+    <button class="btn-primary" onclick="startListening('yesno')" aria-label="是非題">✅ 是非題（Yes / No）</button>
+    <button class="btn-primary" onclick="startListening('choice')" aria-label="選擇題">🎯 選擇回答</button>
+    <button class="btn-secondary" onclick="goHome()" aria-label="返回首頁">⬅️ 返回首頁</button>
+    <div class="voice-cmd-hint">💡 說「是非題」或「選擇題」開始練習</div>
+  </div>
+
+  <div id="listContent" style="display:none;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:22px; color:#888888;" id="listCounter">第 1 題 / 共 8 題</div>
+      <div class="progress-bar"><div class="progress-fill" id="listProgress" style="width:0%"></div></div>
+      <div style="font-size:22px; color:#44FF44;">答對：<span id="listScore">0</span> 題</div>
+    </div>
+    <div class="word-display" id="listQuestion" style="font-size:28px;">準備中...</div>
+    <div class="status-box" id="listStatus">按下「播放題目」開始</div>
+    <div id="listChoices" style="margin:12px 0;"></div>
+    <button class="btn-primary" onclick="replayListening()" aria-label="播放題目">🔊 播放題目</button>
+    <button class="btn-primary" onclick="startListenRecording()" id="listRecordBtn" aria-label="說出答案">🎙️ 說出答案</button>
+    <button class="btn-secondary" onclick="nextListeningQ()" aria-label="下一題">⏭️ 下一題</button>
+    <button class="btn-danger" onclick="endListening()" aria-label="結束練習">🏠 結束練習</button>
+    <div class="voice-cmd-hint">💡 說「Yes」「No」或選項答題，說「再聽一次」重播</div>
+  </div>
+</div>
+
+<!-- ===== 設定 ===== -->
+<div id="page-settings" class="page">
+  <div class="section-title">⚙️ 設定</div>
+
+  <div class="card">
+    <label>🔊 英文語音</label>
+    <select id="enVoiceSelect" onchange="saveSettings()"></select>
+
+    <label>🗣️ 中文語音</label>
+    <select id="zhVoiceSelect" onchange="saveSettings()"></select>
+
+    <label>🚀 語速：<span id="rateLabel">1.0</span>x</label>
+    <input type="range" id="rateSlider" min="0.5" max="1.5" step="0.1" value="1.0"
+      oninput="document.getElementById('rateLabel').textContent=this.value; saveSettings()">
+
+    <label>🔈 音量：<span id="volLabel">1.0</span></label>
+    <input type="range" id="volSlider" min="0.1" max="1.0" step="0.1" value="1.0"
+      oninput="document.getElementById('volLabel').textContent=this.value; saveSettings()">
+
+    <label style="display:flex; align-items:center; gap:16px; margin-top:20px;">
+      <input type="checkbox" id="chineseExplain" style="width:40px;height:40px;" onchange="saveSettings()">
+      <span style="font-size:24px;">每次先用中文解釋</span>
+    </label>
+    <label style="display:flex; align-items:center; gap:16px; margin-top:20px;">
+      <input type="checkbox" id="autoAdvance" style="width:40px;height:40px;" onchange="saveSettings()">
+      <span style="font-size:24px;">答對後自動下一題</span>
+    </label>
+  </div>
+
+  <button class="btn-primary" onclick="testVoice()" aria-label="測試語音">🔊 測試語音</button>
+  <button class="btn-danger" onclick="resetProgress()" aria-label="重置進度">🗑️ 重置所有進度</button>
+  <button class="btn-secondary" onclick="goHome()" aria-label="返回首頁">⬅️ 返回首頁</button>
+
+  <div class="card" style="margin-top:20px;">
+    <div style="font-size:22px; color:#888888;">語音指令清單</div>
+    <div style="font-size:20px; color:#AAAAAA; line-height:2;">
+      「回家」→ 回首頁<br>
+      「開始課程」→ 課程中心<br>
+      「旅遊基礎」/「進階旅遊」/「旅遊達人」→ 選課程<br>
+      「發音練習」→ 發音練習<br>
+      「機場」/「飯店」/「餐廳」/「購物」/「緊急」→ 選發音類別<br>
+      「對話練習」→ 對話練習<br>
+      「機場報到」/「通關」/「計程車」/「飯店入住」→ 選情境<br>
+      「餐廳」/「購物」/「問路」/「閒聊」/「買票」/「地鐵」/「緊急」→ 選情境<br>
+      「聽力練習」→ 聽力<br>
+      「下一題」「下一個」→ 跳過<br>
+      「再說一次」→ 重播<br>
+      「跟讀」→ 開始錄音<br>
+      「提示」→ 看提示答案
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 資料庫 =====
+const DATA = {
+  // ── 課程：旅遊基礎（TOEIC 400 level）──
+  travel_basic: [
+    { word: 'Where is the check-in counter?', zh: '報到櫃台在哪裡？' },
+    { word: 'I have a reservation under my name.', zh: '我用我的名字訂了位。' },
+    { word: 'How many bags can I check in?', zh: '我可以托運幾件行李？' },
+    { word: 'I would like a window seat, please.', zh: '我想要靠窗的座位。' },
+    { word: 'My flight departs at nine thirty.', zh: '我的班機九點半起飛。' },
+    { word: 'What terminal does my flight depart from?', zh: '我的班機從哪個航廈出發？' },
+    { word: 'Is breakfast included in the room rate?', zh: '早餐有含在房價內嗎？' },
+    { word: 'Could you call a taxi for me?', zh: '可以幫我叫計程車嗎？' },
+    { word: 'Where is the nearest subway station?', zh: '最近的地鐵站在哪裡？' },
+    { word: 'Is the hotel within walking distance?', zh: '飯店走路可以到嗎？' }
+  ],
+  // ── 課程：進階旅遊（TOEIC 450 level）──
+  travel_advanced: [
+    { word: 'I would like to declare these items.', zh: '我想申報這些物品。' },
+    { word: 'Do I need to pay any customs duty?', zh: '我需要繳關稅嗎？' },
+    { word: 'Could you upgrade my room, please?', zh: '能幫我升等房間嗎？' },
+    { word: 'The air conditioning is not working properly.', zh: '冷氣運作不正常。' },
+    { word: 'I would like to extend my stay by two nights.', zh: '我想多住兩晚。' },
+    { word: 'Can I get a late checkout until noon?', zh: '可以延後退房到中午嗎？' },
+    { word: 'I am allergic to shellfish and nuts.', zh: '我對貝類和堅果過敏。' },
+    { word: 'Could we have separate bills, please?', zh: '可以分開結帳嗎？' },
+    { word: 'Is there a direct train to the airport?', zh: '有直達機場的火車嗎？' },
+    { word: 'Could you recommend any local attractions?', zh: '能推薦一些當地景點嗎？' }
+  ],
+  // ── 課程：旅遊達人（TOEIC 500 level）──
+  travel_pro: [
+    { word: 'My flight has been delayed. Can I get a meal voucher?', zh: '我的班機延誤了，可以給我餐券嗎？' },
+    { word: 'I believe I was overcharged on my bill.', zh: '我覺得帳單多收了我的錢。' },
+    { word: 'What is the cancellation policy for this booking?', zh: '這個預訂的取消政策是什麼？' },
+    { word: 'Could you arrange a transfer to the city center?', zh: '能安排市中心的交通接送嗎？' },
+    { word: 'I need a receipt for business expense purposes.', zh: '我需要收據做商務費用報銷。' },
+    { word: 'Is there a currency exchange or ATM nearby?', zh: '附近有換錢或提款機嗎？' },
+    { word: 'My passport has been stolen. Where is the nearest embassy?', zh: '我的護照被偷了，最近的大使館在哪裡？' },
+    { word: 'I would like to file a complaint about the service.', zh: '我想就服務問題提出投訴。' },
+    { word: 'Could you put me on standby for an earlier flight?', zh: '能幫我排候補更早的班機嗎？' },
+    { word: 'I need to contact my travel insurance company.', zh: '我需要聯絡我的旅遊保險公司。' }
+  ],
+  intermediate: [
+    { word: 'Could you repeat that?', zh: '可以再說一次嗎？', pronunciation: 'could yoo ree-PEET that' },
+    { word: 'I don\'t understand', zh: '我不懂', pronunciation: 'I dont un-der-STAND' },
+    { word: 'How much does it cost?', zh: '這個多少錢？', pronunciation: 'how much duz it cost' },
+    { word: 'Where is the bathroom?', zh: '廁所在哪裡？', pronunciation: 'where iz the BATH-room' },
+    { word: 'I would like...', zh: '我想要...', pronunciation: 'I wood like' },
+    { word: 'Can you help me?', zh: '你能幫我嗎？', pronunciation: 'can yoo help me' },
+    { word: 'Nice to meet you', zh: '很高興認識你', pronunciation: 'nice to meet yoo' },
+    { word: 'What time is it?', zh: '現在幾點？', pronunciation: 'what time iz it' },
+    { word: 'I am lost', zh: '我迷路了', pronunciation: 'I am lost' },
+    { word: 'Call a doctor please', zh: '請叫醫生', pronunciation: 'call a DOC-tor pleez' }
+  ],
+  // ── 發音：機場用語 ──
+  airport: [
+    { word: 'boarding pass', zh: '登機證' },
+    { word: 'departure terminal', zh: '出境航廈' },
+    { word: 'carry-on baggage', zh: '手提行李' },
+    { word: 'checked luggage', zh: '托運行李' },
+    { word: 'customs declaration', zh: '海關申報' },
+    { word: 'immigration officer', zh: '入境審查官' },
+    { word: 'connecting flight', zh: '轉機班機' },
+    { word: 'overhead compartment', zh: '頭頂置物箱' },
+    { word: 'duty-free shop', zh: '免稅商店' },
+    { word: 'security checkpoint', zh: '安全檢查站' },
+    { word: 'baggage claim area', zh: '行李提取區' },
+    { word: 'excess baggage fee', zh: '超重行李費' },
+    { word: 'window seat', zh: '靠窗座位' },
+    { word: 'aisle seat', zh: '走道座位' },
+    { word: 'flight delay', zh: '班機延誤' },
+    { word: 'Where is the check-in counter?', zh: '報到櫃台在哪裡？' },
+    { word: 'My baggage has not arrived yet.', zh: '我的行李還沒到。' },
+    { word: 'Could you put me on the waiting list?', zh: '能幫我排候補名單嗎？' },
+    { word: 'I would like to upgrade my seat.', zh: '我想升等座位。' },
+    { word: 'What gate does my flight depart from?', zh: '我的班機從哪個登機門出發？' }
+  ],
+  // ── 發音：飯店住宿 ──
+  hotel: [
+    { word: 'room reservation', zh: '客房預訂' },
+    { word: 'check-in time', zh: '入住時間' },
+    { word: 'check-out time', zh: '退房時間' },
+    { word: 'complimentary breakfast', zh: '免費早餐' },
+    { word: 'room service', zh: '客房服務' },
+    { word: 'front desk', zh: '前台' },
+    { word: 'concierge', zh: '禮賓服務' },
+    { word: 'non-smoking room', zh: '禁煙房' },
+    { word: 'housekeeping service', zh: '客房清潔服務' },
+    { word: 'late checkout', zh: '延遲退房' },
+    { word: 'luggage storage', zh: '行李寄存' },
+    { word: 'wake-up call', zh: '叫醒服務' },
+    { word: 'city view', zh: '城市景觀' },
+    { word: 'ocean view', zh: '海景' },
+    { word: 'Do you have a room available?', zh: '有空房嗎？' },
+    { word: 'Is breakfast included?', zh: '有含早餐嗎？' },
+    { word: 'Could you upgrade my room?', zh: '能幫我升等房間嗎？' },
+    { word: 'I would like to extend my stay.', zh: '我想延長住宿。' },
+    { word: 'The Wi-Fi is not working.', zh: 'Wi-Fi 連不上。' },
+    { word: 'Can I have extra towels?', zh: '可以多給我幾條毛巾嗎？' }
+  ],
+  // ── 發音：餐廳點餐 ──
+  restaurant: [
+    { word: 'I have a reservation for two.', zh: '我有訂位，兩位。' },
+    { word: 'Could I see the menu, please?', zh: '可以給我看菜單嗎？' },
+    { word: 'What do you recommend?', zh: '你推薦什麼？' },
+    { word: 'I am allergic to nuts.', zh: '我對堅果過敏。' },
+    { word: 'I would like my steak medium rare.', zh: '我的牛排要五分熟。' },
+    { word: 'Could I have a refill, please?', zh: '可以幫我續杯嗎？' },
+    { word: 'Is this dish spicy?', zh: '這道菜辣嗎？' },
+    { word: 'Could we have separate bills?', zh: '可以分開結帳嗎？' },
+    { word: 'I am lactose intolerant.', zh: '我有乳糖不耐症。' },
+    { word: 'Does this contain gluten?', zh: '這個含有麩質嗎？' },
+    { word: 'Could you wrap this to go?', zh: '可以幫我打包嗎？' },
+    { word: 'Is service charge included?', zh: '含服務費嗎？' },
+    { word: 'appetizer', zh: '開胃菜' },
+    { word: 'main course', zh: '主菜' },
+    { word: 'sparkling water', zh: '氣泡水' },
+    { word: 'house wine', zh: '餐廳自選葡萄酒' },
+    { word: 'vegetarian option', zh: '素食選項' },
+    { word: 'I would like to make a reservation.', zh: '我想訂位。' },
+    { word: 'The food is excellent.', zh: '食物非常美味。' },
+    { word: 'Could I have the bill, please?', zh: '可以給我帳單嗎？' }
+  ],
+  // ── 發音：購物殺價 ──
+  shopping: [
+    { word: 'How much does this cost?', zh: '這個多少錢？' },
+    { word: 'Do you have this in a larger size?', zh: '有大一號的嗎？' },
+    { word: 'Can I try this on?', zh: '我可以試穿嗎？' },
+    { word: 'Is there a discount?', zh: '有折扣嗎？' },
+    { word: 'Do you accept credit cards?', zh: '可以刷信用卡嗎？' },
+    { word: 'What is your return policy?', zh: '退換貨政策是什麼？' },
+    { word: 'This is too expensive.', zh: '這太貴了。' },
+    { word: 'Can you give me a better price?', zh: '可以便宜一點嗎？' },
+    { word: 'I am just browsing.', zh: '我只是看看。' },
+    { word: 'Do you have any other colors?', zh: '有其他顏色嗎？' },
+    { word: 'Can I get a tax refund?', zh: '可以退稅嗎？' },
+    { word: 'This one is defective.', zh: '這個有瑕疵。' },
+    { word: 'I would like to return this item.', zh: '我想退還這個商品。' },
+    { word: 'duty-free allowance', zh: '免稅額度' },
+    { word: 'exchange rate', zh: '匯率' },
+    { word: 'souvenir shop', zh: '紀念品店' },
+    { word: 'Do you offer any discount for cash?', zh: '現金付款有折扣嗎？' },
+    { word: 'Can I get a receipt?', zh: '可以給我收據嗎？' },
+    { word: 'Is this tax-free?', zh: '這個免稅嗎？' },
+    { word: 'I will take this one.', zh: '我要買這個。' }
+  ],
+  // ── 發音：緊急狀況 ──
+  emergency: [
+    { word: 'Call an ambulance, please!', zh: '請叫救護車！' },
+    { word: 'I need to see a doctor immediately.', zh: '我需要立刻看醫生。' },
+    { word: 'My passport has been stolen.', zh: '我的護照被偷了。' },
+    { word: 'Where is the nearest police station?', zh: '最近的警察局在哪裡？' },
+    { word: 'I have lost my wallet.', zh: '我的錢包不見了。' },
+    { word: 'I need to contact my embassy.', zh: '我需要聯絡我的大使館。' },
+    { word: 'I am not feeling well.', zh: '我感覺不太舒服。' },
+    { word: 'Where is the emergency exit?', zh: '緊急出口在哪裡？' },
+    { word: 'I need travel insurance assistance.', zh: '我需要旅遊保險協助。' },
+    { word: 'Can you help me find a pharmacy?', zh: '能幫我找藥局嗎？' },
+    { word: 'I have been in an accident.', zh: '我發生了意外。' },
+    { word: 'I need a translator.', zh: '我需要翻譯。' },
+    { word: 'This is an emergency.', zh: '這是緊急情況。' },
+    { word: 'I am diabetic.', zh: '我有糖尿病。' },
+    { word: 'I take medication for blood pressure.', zh: '我有服用血壓藥。' },
+    { word: 'I need to file a police report.', zh: '我需要報警備案。' },
+    { word: 'Please write down the address for me.', zh: '請幫我把地址寫下來。' },
+    { word: 'I have a severe allergy.', zh: '我有嚴重過敏。' },
+    { word: 'Please call the hotel for me.', zh: '請幫我打電話給飯店。' },
+    { word: 'My travel insurance number is...', zh: '我的旅遊保險號碼是...' }
+  ],
+  conversations: [
+    { // 0
+      title: '機場報到 (Airport Check-in)', icon: '✈️',
+      steps: [
+        { speaker: 'app', text: 'Good morning! May I see your passport and booking confirmation, please?', zh: '早安！可以給我看您的護照和訂位確認嗎？', keywords: [] },
+        { speaker: 'user', text: 'Here you are. I have a reservation on flight CI-802 to Tokyo.', zh: '在這裡。我訂了 CI-802 飛往東京的班機。', keywords: ['here', 'reservation', 'booking', 'flight', 'passport', 'ticket', 'tokyo'] },
+        { speaker: 'app', text: 'Thank you. How many bags would you like to check in today?', zh: '謝謝。您今天有幾件行李要托運？', keywords: [] },
+        { speaker: 'user', text: 'Just one suitcase. I also have a carry-on bag.', zh: '只有一個行李箱。我也有一個手提袋。', keywords: ['one', 'suitcase', 'bag', 'carry', 'luggage', 'just'] },
+        { speaker: 'app', text: 'Would you prefer a window seat or an aisle seat?', zh: '您喜歡靠窗還是走道的座位？', keywords: [] },
+        { speaker: 'user', text: 'A window seat please. And could I request an exit row for extra legroom?', zh: '靠窗的座位，謝謝。可以安排緊急出口那排有更多腿部空間嗎？', keywords: ['window', 'aisle', 'seat', 'exit', 'row', 'legroom', 'please'] },
+        { speaker: 'app', text: 'Certainly. Your boarding gate is B12. Boarding begins at nine forty-five.', zh: '當然。您的登機門是 B12，九點四十五分開始登機。', keywords: [] },
+        { speaker: 'user', text: 'Thank you. Is there a duty-free shop near gate B12?', zh: '謝謝。B12 登機門附近有免稅商店嗎？', keywords: ['thank', 'duty', 'free', 'shop', 'where', 'near'] }
+      ]
+    },
+    { // 1
+      title: '通關入境 (Customs & Immigration)', icon: '🛂',
+      steps: [
+        { speaker: 'app', text: 'Good afternoon. Passport please. What is the purpose of your visit?', zh: '下午好。請出示護照。您此行的目的是？', keywords: [] },
+        { speaker: 'user', text: 'Here is my passport. I am here for sightseeing and tourism.', zh: '這是我的護照。我來觀光旅遊的。', keywords: ['here', 'passport', 'tourism', 'holiday', 'vacation', 'sightseeing'] },
+        { speaker: 'app', text: 'How long are you planning to stay in the country?', zh: '您計劃在這個國家待多久？', keywords: [] },
+        { speaker: 'user', text: 'Ten days. I have a return ticket already booked for the fourteenth.', zh: '十天。我已經訂好十四號的回程機票了。', keywords: ['ten', 'days', 'return', 'ticket', 'booked', 'fourteenth'] },
+        { speaker: 'app', text: 'Where will you be staying during your visit?', zh: '您停留期間住在哪裡？', keywords: [] },
+        { speaker: 'user', text: 'At the Grand Hyatt Hotel in the city center. Here is my booking confirmation.', zh: '住在市中心的君悅飯店。這是我的訂房確認。', keywords: ['hotel', 'hyatt', 'city', 'center', 'booking', 'confirmation'] },
+        { speaker: 'app', text: 'Do you have anything to declare at customs?', zh: '您有任何東西要向海關申報嗎？', keywords: [] },
+        { speaker: 'user', text: 'No, I have nothing to declare. Just personal belongings and gifts.', zh: '沒有，我沒有要申報的。只有個人物品和禮物。', keywords: ['no', 'nothing', 'declare', 'personal', 'belongings', 'gifts'] }
+      ]
+    },
+    { // 2
+      title: '搭計程車 (Taking a Taxi)', icon: '🚕',
+      steps: [
+        { speaker: 'app', text: 'Hello! Where would you like to go?', zh: '你好！請問要去哪裡？', keywords: [] },
+        { speaker: 'user', text: 'To the Marriott Hotel on Fifth Avenue, please.', zh: '去第五大道的萬豪酒店，謝謝。', keywords: ['hotel', 'marriott', 'avenue', 'street', 'please', 'go', 'take'] },
+        { speaker: 'app', text: 'No problem. Traffic is a bit heavy. It should take about twenty-five minutes.', zh: '沒問題。車有點多，大概二十五分鐘。', keywords: [] },
+        { speaker: 'user', text: 'That is fine. Could you take the highway to save time?', zh: '沒問題。可以走高速公路節省時間嗎？', keywords: ['fine', 'okay', 'highway', 'expressway', 'faster', 'save', 'time'] },
+        { speaker: 'app', text: 'Sure. We have arrived. The fare is forty-two dollars.', zh: '好的。到了，車費是四十二元。', keywords: [] },
+        { speaker: 'user', text: 'Here is fifty dollars. Please keep the change.', zh: '這是五十元，不用找了。', keywords: ['here', 'fifty', 'keep', 'change', 'tip', 'dollars'] }
+      ]
+    },
+    { // 3
+      title: '飯店入住 (Hotel Check-in)', icon: '🏨',
+      steps: [
+        { speaker: 'app', text: 'Good evening and welcome! Do you have a reservation with us?', zh: '晚上好，歡迎！您有預訂嗎？', keywords: [] },
+        { speaker: 'user', text: 'Yes. I have a reservation for three nights under the name Chen.', zh: '有的，我以陳先生的名義訂了三晚。', keywords: ['yes', 'reservation', 'booking', 'nights', 'name', 'chen'] },
+        { speaker: 'app', text: 'Found it. Would you prefer a high floor with a city view?', zh: '找到了。您要高樓層有城市景觀的房間嗎？', keywords: [] },
+        { speaker: 'user', text: 'That would be wonderful. Also, is Wi-Fi complimentary for guests?', zh: '那太好了。另外，房客使用 Wi-Fi 免費嗎？', keywords: ['wonderful', 'great', 'wifi', 'complimentary', 'free', 'internet'] },
+        { speaker: 'app', text: 'Yes, Wi-Fi is complimentary. Breakfast is served from seven to ten-thirty on the second floor.', zh: '是的，Wi-Fi 免費。早餐在二樓供應，從七點到十點半。', keywords: [] },
+        { speaker: 'user', text: 'Perfect. Could I also arrange a wake-up call for six AM tomorrow?', zh: '很好。可以安排明天早上六點的叫醒服務嗎？', keywords: ['wake', 'call', 'six', 'tomorrow', 'morning', 'arrange', 'please'] },
+        { speaker: 'app', text: 'Of course. Here is your key card. Enjoy your stay!', zh: '當然。這是您的房卡，祝您住宿愉快！', keywords: [] },
+        { speaker: 'user', text: 'Thank you very much. Could you have my luggage sent up to the room?', zh: '非常感謝。可以幫我把行李送到房間嗎？', keywords: ['thank', 'luggage', 'send', 'room', 'carry', 'bag'] }
+      ]
+    },
+    { // 4
+      title: '飯店問題 (Hotel Complaint)', icon: '🛎️',
+      steps: [
+        { speaker: 'app', text: 'Front desk, this is Sarah speaking. How may I help you?', zh: '前台，我是 Sarah。請問有什麼需要幫忙的嗎？', keywords: [] },
+        { speaker: 'user', text: 'Hello. I am in room 1204. The air conditioning is not working properly.', zh: '你好，我住一二零四室。冷氣運作不正常。', keywords: ['room', 'air', 'conditioning', 'not', 'working', 'broken', 'problem'] },
+        { speaker: 'app', text: 'I sincerely apologize for the inconvenience. Shall I send maintenance right away?', zh: '非常抱歉造成您的不便。要馬上派維修人員過去嗎？', keywords: [] },
+        { speaker: 'user', text: 'Yes please. Also, the noise from the hallway is quite loud. Could I change rooms?', zh: '是的麻煩了。另外走廊的噪音很大，我可以換房間嗎？', keywords: ['yes', 'noise', 'hallway', 'loud', 'change', 'switch', 'room', 'quiet'] },
+        { speaker: 'app', text: 'I understand. We do have a quiet room on a higher floor available. Would you like to move?', zh: '我了解。我們有一間較高樓層的安靜房間可以安排，您想換嗎？', keywords: [] },
+        { speaker: 'user', text: 'Yes, that would be great. And could you send extra pillows and towels as well?', zh: '好的，那很好。可以順便送多幾個枕頭和毛巾嗎？', keywords: ['yes', 'great', 'pillows', 'towels', 'extra', 'send', 'also'] }
+      ]
+    },
+    { // 5
+      title: '餐廳點餐 (Restaurant Ordering)', icon: '🍽️',
+      steps: [
+        { speaker: 'app', text: 'Good evening! Do you have a reservation, or are you dining as a walk-in?', zh: '晚上好！您有訂位，還是直接來的？', keywords: [] },
+        { speaker: 'user', text: 'We have a reservation for two at seven. The name is Lee.', zh: '我們七點有訂位，兩位，名字是李。', keywords: ['reservation', 'two', 'seven', 'name', 'lee', 'booking'] },
+        { speaker: 'app', text: 'Right this way. Can I start you with some drinks while you look at the menu?', zh: '這邊請。您看菜單的時候要先點飲料嗎？', keywords: [] },
+        { speaker: 'user', text: 'Sparkling water for me, please. What is today\'s chef\'s special?', zh: '我要氣泡水，謝謝。今天主廚推薦是什麼？', keywords: ['water', 'sparkling', 'still', 'special', 'today', 'chef', 'recommend'] },
+        { speaker: 'app', text: 'Tonight\'s special is pan-seared salmon with seasonal vegetables and herb butter.', zh: '今晚的特餐是香煎鮭魚配時令蔬菜和香草奶油。', keywords: [] },
+        { speaker: 'user', text: 'That sounds wonderful. I will have that. I should mention I am lactose intolerant.', zh: '聽起來很棒。我就點那個。我要先說明我有乳糖不耐症。', keywords: ['wonderful', 'have', 'that', 'lactose', 'intolerant', 'allergy', 'dairy'] },
+        { speaker: 'app', text: 'No problem at all. We can prepare it without any dairy. Anything else?', zh: '完全沒問題。我們可以不加乳製品準備。還需要別的嗎？', keywords: [] },
+        { speaker: 'user', text: 'That is all for now. And could we have separate bills at the end, please?', zh: '目前這樣就好了。最後可以分開結帳嗎？', keywords: ['all', 'separate', 'bills', 'check', 'split', 'pay', 'end', 'please'] }
+      ]
+    },
+    { // 6
+      title: '購物殺價 (Shopping)', icon: '🛍️',
+      steps: [
+        { speaker: 'app', text: 'Welcome! Can I help you find something today?', zh: '歡迎！今天需要幫您找什麼嗎？', keywords: [] },
+        { speaker: 'user', text: 'I am looking for a leather handbag as a gift for my daughter.', zh: '我在找一個皮包，要送給我女兒當禮物。', keywords: ['looking', 'leather', 'handbag', 'bag', 'gift', 'daughter', 'present'] },
+        { speaker: 'app', text: 'This one is very popular. It is three hundred and fifty dollars.', zh: '這款很受歡迎，三百五十元。', keywords: [] },
+        { speaker: 'user', text: 'That is quite expensive. Do you offer any discount for cash payment?', zh: '那相當貴了。現金付款有折扣嗎？', keywords: ['discount', 'cash', 'cheaper', 'expensive', 'reduce', 'price', 'offer'] },
+        { speaker: 'app', text: 'We can offer ten percent off for cash. That would be three hundred and fifteen dollars.', zh: '現金的話可以打九折，三百一十五元。', keywords: [] },
+        { speaker: 'user', text: 'I will take it. And can I get a tax refund form? I am a foreign tourist.', zh: '我買了。可以給我退稅表格嗎？我是外國觀光客。', keywords: ['take', 'tax', 'refund', 'form', 'tourist', 'foreign', 'receipt'] }
+      ]
+    },
+    { // 7
+      title: '問路與地圖 (Asking Directions)', icon: '🗺️',
+      steps: [
+        { speaker: 'app', text: 'Excuse me, you look a little lost. Do you need any help?', zh: '打擾一下，您看起來有點迷路，需要幫忙嗎？', keywords: [] },
+        { speaker: 'user', text: 'Yes, thank you so much. I am trying to find the National Museum.', zh: '是的，非常感謝。我想找國家博物館。', keywords: ['yes', 'museum', 'national', 'trying', 'find', 'go', 'where'] },
+        { speaker: 'app', text: 'It is about a ten-minute walk. Head straight down this road, then turn left at the traffic lights.', zh: '走路大約十分鐘。沿這條路直走，然後在紅綠燈左轉。', keywords: [] },
+        { speaker: 'user', text: 'I am sorry, could you repeat that? Should I turn left or right at the lights?', zh: '抱歉，可以再說一次嗎？在紅綠燈要左轉還是右轉？', keywords: ['repeat', 'left', 'right', 'turn', 'lights', 'sorry', 'again'] },
+        { speaker: 'app', text: 'Turn left. Walk about five more minutes, and it will be on your right side.', zh: '左轉。再走大約五分鐘，就在您的右手邊。', keywords: [] },
+        { speaker: 'user', text: 'Is there a subway station nearby? My feet are a bit sore from walking.', zh: '附近有地鐵站嗎？我走了一整天腳有點痠。', keywords: ['subway', 'metro', 'station', 'bus', 'nearby', 'transport', 'tired'] }
+      ]
+    },
+    { // 8
+      title: '與外國人閒聊 (Small Talk)', icon: '👋',
+      steps: [
+        { speaker: 'app', text: 'Hi there! Are you enjoying your time here? Is this your first visit?', zh: '你好！您在這裡玩得開心嗎？這是您第一次來嗎？', keywords: [] },
+        { speaker: 'user', text: 'Not my first time, actually. I have been here twice before and I love it.', zh: '其實不是第一次了。我以前來過兩次，我很喜歡這裡。', keywords: ['first', 'before', 'twice', 'love', 'visit', 'been', 'not'] },
+        { speaker: 'app', text: 'That is wonderful! Where are you from originally?', zh: '太棒了！您原本從哪裡來？', keywords: [] },
+        { speaker: 'user', text: 'I am from Taiwan. I am retired now and I enjoy travelling around the world.', zh: '我來自台灣。我現在退休了，喜歡環遊世界。', keywords: ['taiwan', 'from', 'retired', 'travel', 'enjoy', 'world'] },
+        { speaker: 'app', text: 'How wonderful! What are you planning to see while you are here?', zh: '真棒！您計劃在這裡參觀什麼？', keywords: [] },
+        { speaker: 'user', text: 'I would like to explore the old town and try as much local food as possible.', zh: '我想探索舊城區，並盡量嘗試當地食物。', keywords: ['explore', 'old', 'town', 'food', 'local', 'try', 'see'] },
+        { speaker: 'app', text: 'You will absolutely love it! Do you have any restaurant recommendations you need?', zh: '您一定會很喜歡的！需要我推薦餐廳嗎？', keywords: [] },
+        { speaker: 'user', text: 'That would be very helpful. Thank you so much for your kindness!', zh: '那非常有幫助，非常感謝您的熱心！', keywords: ['helpful', 'thank', 'appreciate', 'kindness', 'yes', 'please', 'great'] }
+      ]
+    },
+    { // 9
+      title: '景點買票 (Buying Tickets)', icon: '🎡',
+      steps: [
+        { speaker: 'app', text: 'Welcome! How many tickets would you like today?', zh: '歡迎！您今天需要幾張票？', keywords: [] },
+        { speaker: 'user', text: 'Two adult tickets please. Do you offer any senior citizen discount?', zh: '兩張成人票，謝謝。有敬老優惠嗎？', keywords: ['two', 'adult', 'tickets', 'senior', 'discount', 'elderly', 'please'] },
+        { speaker: 'app', text: 'Yes, visitors over sixty-five get twenty percent off with valid ID.', zh: '有的，六十五歲以上出示有效證件可享八折優惠。', keywords: [] },
+        { speaker: 'user', text: 'Here is my passport. What time does the last guided tour begin?', zh: '這是我的護照。最後一場導覽幾點開始？', keywords: ['here', 'passport', 'id', 'last', 'tour', 'time', 'begin', 'start'] },
+        { speaker: 'app', text: 'The last guided tour starts at four-thirty and lasts about ninety minutes.', zh: '最後一場導覽下午四點半開始，大約九十分鐘。', keywords: [] },
+        { speaker: 'user', text: 'Perfect. Can I also get an audio guide in Mandarin Chinese?', zh: '很好。可以提供普通話的語音導覽嗎？', keywords: ['audio', 'guide', 'chinese', 'mandarin', 'headset', 'language', 'yes'] }
+      ]
+    },
+    { // 10
+      title: '搭地鐵公車 (Public Transport)', icon: '🚇',
+      steps: [
+        { speaker: 'app', text: 'Hello! Can I help you with anything?', zh: '你好！有什麼需要幫忙的嗎？', keywords: [] },
+        { speaker: 'user', text: 'Yes please. I need to get to the central railway station. Which line should I take?', zh: '是的，麻煩了。我需要去中央火車站，應該搭哪條線？', keywords: ['central', 'station', 'railway', 'line', 'take', 'which', 'how'] },
+        { speaker: 'app', text: 'Take the blue line from this platform. Central Station is four stops from here.', zh: '從這個月台搭藍線，中央站是這裡的第四站。', keywords: [] },
+        { speaker: 'user', text: 'How long does it take? And do I need to transfer anywhere?', zh: '需要多少時間？需要在哪裡換車嗎？', keywords: ['long', 'time', 'transfer', 'change', 'direct', 'how', 'minutes'] },
+        { speaker: 'app', text: 'About twelve minutes. It is a direct service with no transfers needed.', zh: '大約十二分鐘，是直達，不需要換車。', keywords: [] },
+        { speaker: 'user', text: 'Can I pay using my contactless credit card, or do I need to buy a ticket?', zh: '可以用感應信用卡付款，還是需要買票？', keywords: ['card', 'contactless', 'credit', 'pay', 'ticket', 'buy', 'tap'] }
+      ]
+    },
+    { // 11
+      title: '緊急求助 (Emergency)', icon: '🆘',
+      steps: [
+        { speaker: 'app', text: 'Emergency services. What is your emergency, please?', zh: '緊急服務，請問有什麼緊急情況？', keywords: [] },
+        { speaker: 'user', text: 'My wallet and passport were stolen at the train station just now.', zh: '我的錢包和護照剛才在火車站被偷了。', keywords: ['stolen', 'wallet', 'passport', 'lost', 'taken', 'robbery', 'theft', 'station'] },
+        { speaker: 'app', text: 'I understand. Are you physically safe right now? Where exactly are you?', zh: '我了解了。您現在人身安全嗎？您確切在哪裡？', keywords: [] },
+        { speaker: 'user', text: 'Yes, I am safe. I am standing at the main entrance of Central Station.', zh: '是的，我很安全。我站在中央車站的主入口。', keywords: ['safe', 'central', 'station', 'entrance', 'standing', 'main'] },
+        { speaker: 'app', text: 'Please stay there. An officer will arrive in ten minutes. Do you have your travel insurance details?', zh: '請待在那裡，十分鐘內會有警察到達。您有旅遊保險資料嗎？', keywords: [] },
+        { speaker: 'user', text: 'Yes. I have a photo of my insurance card on my phone. The policy number is...', zh: '有的。我手機裡有保險卡的照片，保單號碼是...', keywords: ['yes', 'insurance', 'phone', 'photo', 'card', 'policy', 'number'] }
+      ]
+    }
+  ],
+  listening: {
+    yesno: [
+      { question: 'For international flights, should you arrive at the airport at least two hours before departure?', zh: '搭國際班機，應該至少提前兩小時到機場嗎？', answer: 'yes', explanation: 'Yes! Always arrive at least two hours early for international flights. 是的！搭國際班機要至少提前兩小時抵達機場。' },
+      { question: 'Can you carry liquids over one hundred milliliters in your carry-on bag on a plane?', zh: '搭飛機的手提行李裡可以帶超過一百毫升的液體嗎？', answer: 'no', explanation: 'No! Carry-on liquids must be under 100ml. 不行！手提液體必須少於一百毫升。' },
+      { question: 'Is it common to tip waiters and taxi drivers in the United States?', zh: '在美國給服務員和計程車司機小費是很常見的嗎？', answer: 'yes', explanation: 'Yes! Tipping 15 to 20 percent is standard in the US. 是的！在美國給百分之十五到二十的小費是標準做法。' },
+      { question: 'Should you declare cash amounts over ten thousand US dollars at customs?', zh: '攜帶超過一萬美元的現金過海關時需要申報嗎？', answer: 'yes', explanation: 'Yes! Most countries require declaring over ten thousand dollars in cash. 是的！大多數國家要求申報超過一萬美元的現金。' },
+      { question: 'Is the standard hotel check-in time usually in the morning at nine AM?', zh: '飯店標準入住時間通常是早上九點嗎？', answer: 'no', explanation: 'No! Standard check-in is usually 3 PM. 不是！標準入住時間通常是下午三點。' },
+      { question: 'Can you usually bargain over prices in department stores in Europe?', zh: '在歐洲的百貨公司通常可以議價嗎？', answer: 'no', explanation: 'No! Prices are fixed in most European stores. Bargaining is not typical. 不行！大多數歐洲商店價格固定，通常不議價。' },
+      { question: 'Should you keep a copy of your passport separately while traveling abroad?', zh: '在海外旅行時應該另外保留護照副本嗎？', answer: 'yes', explanation: 'Yes! Always keep a separate passport copy in case of loss or theft. 是的！應備份護照以防遺失或被盜。' },
+      { question: 'Is a transit visa always required if you are just passing through an airport without leaving?', zh: '僅過境機場不出境，是否一定需要過境簽證？', answer: 'no', explanation: 'No! Many countries allow transit without a visa for short connections. 不一定！許多國家短暫轉機不需要過境簽證。' }
+    ],
+    choice: [
+      { question: 'At the airport, where do you go first after arriving?', zh: '抵達機場後，你首先去哪裡？', options: ['Check-in counter', 'Duty-free shop', 'Boarding gate'], answer: 'check-in counter', explanation: 'Check-in counter first! Drop your bags and get your boarding pass before anything else. 先去 check-in counter！先辦報到、托運行李才能做其他事。' },
+      { question: 'What do you say to politely ask someone to repeat themselves?', zh: '禮貌地請別人重說一次怎麼說？', options: ['Speak up!', 'Could you repeat that please?', 'What did you say?'], answer: 'could you repeat that please', explanation: '"Could you repeat that, please?" is polite and natural. 說 "Could you repeat that, please?" 最有禮貌也最自然。' },
+      { question: 'Which phrase is correct when asking for a different room size?', zh: '詢問是否有不同尺寸房間，哪句話是對的？', options: ['Do you have a bigger room?', 'Give me a bigger room.', 'Room big please.'], answer: 'do you have a bigger room', explanation: '"Do you have a bigger room?" is the polite and natural way to ask. 說 "Do you have a bigger room?" 最禮貌自然。' },
+      { question: 'At a restaurant, how do you ask for the bill?', zh: '在餐廳怎麼要求結帳？', options: ['Money please!', 'Could I have the bill please?', 'Pay now.'], answer: 'could i have the bill please', explanation: '"Could I have the bill, please?" 是要求結帳最禮貌的說法。' },
+      { question: 'If your flight is delayed over three hours, what should you ask the airline for?', zh: '班機延誤超過三小時，應該向航空公司要求什麼？', options: ['A free upgrade', 'A meal voucher', 'A full refund'], answer: 'a meal voucher', explanation: 'A meal voucher! Airlines usually provide food vouchers for long delays. 要 meal voucher（餐券）！長時間延誤航空公司通常需提供餐食。' },
+      { question: 'What do you say when you want to pay with a credit card?', zh: '想用信用卡付款時怎麼說？', options: ['I have no cash.', 'Can I pay by card?', 'Credit card only.'], answer: 'can i pay by card', explanation: '"Can I pay by card?" is the standard and polite phrase. 說 "Can I pay by card?" 是標準又禮貌的說法。' },
+      { question: 'How do you ask if a dish contains a certain ingredient you are allergic to?', zh: '怎麼詢問一道菜是否含有你過敏的食材？', options: ['No nuts in this?', 'Does this contain nuts?', 'I hate nuts.'], answer: 'does this contain nuts', explanation: '"Does this contain nuts?" is clear and polite for allergy inquiries. 說 "Does this contain nuts?" 清楚又有禮。' },
+      { question: 'What is the correct phrase for asking to store your luggage at the hotel before check-in?', zh: '辦理入住前請飯店幫忙保管行李怎麼說？', options: ['Hide my bags.', 'Could you store my luggage?', 'Keep bags here.'], answer: 'could you store my luggage', explanation: '"Could you store my luggage?" is the correct and polite request. 說 "Could you store my luggage?" 正確又有禮。' }
+    ]
+  }
+};
+
+// ===== 狀態變數 =====
+let currentPage = 'home';
+let settings = { enVoice: null, zhVoice: null, rate: 1.0, volume: 1.0, chineseExplain: true, autoAdvance: true };
+let progress = { daily: 0, streak: 0, lastDate: '', completed: {} };
+let recognition = null;
+let isRecording = false;
+let currentCallback = null;
+let voiceCommandMode = false;
+
+// 課程狀態
+let lessonState = { level: '', words: [], index: 0, score: 0 };
+let pronState = { category: '', words: [], index: 0, score: 0 };
+let convState = { scenarioIdx: 0, steps: [], stepIdx: 0 };
+let listState = { type: '', questions: [], index: 0, score: 0 };
+
+// ===== 初始化 =====
+window.onload = function() {
+  loadSettings();
+  loadProgress();
+  initVoices();
+  initSpeechRecognition();
+  updateHomeUI();
+  setTimeout(() => {
+    speak('歡迎回來！今天繼續練習旅遊英語喔！有四個項目可以選：開始課程、發音練習、對話練習、或聽力練習。請直接說出你想做的，或點按鈕喔！', 'zh');
+  }, 800);
+  startVoiceCommandListener();
+};
+
+function initVoices() {
+  const loadVoices = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const enSelect = document.getElementById('enVoiceSelect');
+    const zhSelect = document.getElementById('zhVoiceSelect');
+    enSelect.innerHTML = '';
+    zhSelect.innerHTML = '';
+
+    const enVoices = voices.filter(v => v.lang.startsWith('en'));
+    const zhVoices = voices.filter(v => v.lang.startsWith('zh') || v.lang.startsWith('cmn'));
+
+    if (enVoices.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '（使用預設英文語音）';
+      enSelect.appendChild(opt);
+    }
+    enVoices.forEach((v, i) => {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      opt.textContent = v.name + ' (' + v.lang + ')';
+      if (settings.enVoice && v.name === settings.enVoice) opt.selected = true;
+      enSelect.appendChild(opt);
+    });
+
+    if (zhVoices.length === 0) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '（使用預設中文語音）';
+      zhSelect.appendChild(opt);
+    }
+    zhVoices.forEach((v, i) => {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      opt.textContent = v.name + ' (' + v.lang + ')';
+      if (settings.zhVoice && v.name === settings.zhVoice) opt.selected = true;
+      zhSelect.appendChild(opt);
+    });
+  };
+
+  if (window.speechSynthesis.getVoices().length > 0) {
+    loadVoices();
+  }
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function initSpeechRecognition() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    console.warn('瀏覽器不支援語音辨識');
+    return;
+  }
+  recognition = new SpeechRec();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'zh-TW';
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('micIndicator').classList.add('active');
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('micIndicator').classList.remove('active');
+  };
+  recognition.onerror = (e) => {
+    isRecording = false;
+    document.getElementById('micIndicator').classList.remove('active');
+    if (e.error === 'not-allowed') {
+      speak('需要麥克風權限。請允許麥克風使用，我才能聽到你說話喔。', 'zh');
+    }
+    if (currentCallback) { currentCallback(''); currentCallback = null; }
+  };
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript.trim().toLowerCase();
+    console.log('聽到：', transcript);
+    if (currentCallback) { currentCallback(transcript); currentCallback = null; }
+  };
+}
+
+// ===== TTS =====
+function speak(text, lang = 'en', rate = null, onEnd = null) {
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  const voices = window.speechSynthesis.getVoices();
+  const r = rate || settings.rate;
+  utter.rate = r;
+  utter.volume = settings.volume;
+
+  if (lang === 'zh') {
+    utter.lang = 'zh-TW';
+    const zhVoice = voices.find(v => v.name === settings.zhVoice) ||
+      voices.find(v => v.lang.startsWith('zh')) ||
+      voices.find(v => v.lang.startsWith('cmn'));
+    if (zhVoice) utter.voice = zhVoice;
+  } else {
+    utter.lang = 'en-US';
+    const enVoice = voices.find(v => v.name === settings.enVoice) ||
+      voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) utter.voice = enVoice;
+  }
+
+  if (onEnd) utter.onend = onEnd;
+  window.speechSynthesis.speak(utter);
+}
+
+function speakSlow(text, lang = 'en') {
+  speak(text, lang, Math.max(0.4, settings.rate * 0.6));
+}
+
+// ===== 語音辨識 =====
+function startRecording(lang = 'zh-TW', callback) {
+  if (!recognition) {
+    speak('抱歉，您的瀏覽器不支援語音辨識。請使用 Chrome 瀏覽器。', 'zh');
+    return;
+  }
+  if (isRecording) {
+    recognition.stop();
+    setTimeout(() => { doStartRecording(lang, callback); }, 600);
+    return;
+  }
+  doStartRecording(lang, callback);
+}
+
+function doStartRecording(lang, callback) {
+  window.speechSynthesis.cancel();
+  currentCallback = callback;
+  recognition.lang = lang;
+  try { recognition.start(); }
+  catch(e) { console.error('錄音錯誤:', e); }
+}
+
+// ===== 語音指令監聽 =====
+function startVoiceCommandListener() {
+  setInterval(() => {
+    if (!isRecording && !window.speechSynthesis.speaking) {
+      // 背景持續監聽語音指令（靜默模式）
+    }
+  }, 10000);
+}
+
+function processVoiceCommand(text) {
+  const t = text.toLowerCase();
+  if (t.includes('回家') || t.includes('首頁') || t.includes('返回')) { goHome(); return true; }
+  if (t.includes('開始課程') || t.includes('課程')) { navigateTo('lessons'); return true; }
+  if (t.includes('發音練習') || t.includes('發音')) { navigateTo('pronunciation'); return true; }
+  if (t.includes('對話練習') || t.includes('對話')) { navigateTo('conversation'); return true; }
+  if (t.includes('聽力練習') || t.includes('聽力')) { navigateTo('listening'); return true; }
+  if (t.includes('設定')) { navigateTo('settings'); return true; }
+  if (currentPage === 'lessons') {
+    if (t.includes('下一題') || t.includes('跳過')) { skipLessonWord(); return true; }
+    if (t.includes('跟讀') || t.includes('開始')) { startLessonRecording(); return true; }
+    if (t.includes('再說') || t.includes('再一次') || t.includes('重播')) { speakCurrentLesson(); return true; }
+    if (t.includes('慢速')) { speakCurrentLessonSlow(); return true; }
+    if (t.includes('旅遊基礎') || t.includes('基礎')) { startLesson('travel_basic'); return true; }
+    if (t.includes('進階旅遊') || t.includes('進階')) { startLesson('travel_advanced'); return true; }
+    if (t.includes('旅遊達人') || t.includes('達人')) { startLesson('travel_pro'); return true; }
+  }
+  if (currentPage === 'pronunciation') {
+    if (t.includes('下一個') || t.includes('跳過')) { nextPronWord(); return true; }
+    if (t.includes('跟讀') || t.includes('開始')) { startPronRecording(); return true; }
+    if (t.includes('慢速')) { speakCurrentPronSlow(); return true; }
+    if (t.includes('機場')) { startPronunciation('airport'); return true; }
+    if (t.includes('飯店') || t.includes('住宿')) { startPronunciation('hotel'); return true; }
+    if (t.includes('餐廳') || t.includes('點餐')) { startPronunciation('restaurant'); return true; }
+    if (t.includes('購物') || t.includes('殺價')) { startPronunciation('shopping'); return true; }
+    if (t.includes('緊急') || t.includes('急救')) { startPronunciation('emergency'); return true; }
+  }
+  if (currentPage === 'conversation') {
+    if (t.includes('回答') || t.includes('我說')) { startConvRecording(); return true; }
+    if (t.includes('再說') || t.includes('重播') || t.includes('再一次')) { replayConvPrompt(); return true; }
+    if (t.includes('提示')) { showConvHint(); return true; }
+    if (t.includes('跳過')) { nextConvStep(); return true; }
+    if (t.includes('機場報到') || t.includes('報到')) { startConversation(0); return true; }
+    if (t.includes('通關') || t.includes('海關') || t.includes('入境')) { startConversation(1); return true; }
+    if (t.includes('計程車') || t.includes('搭車')) { startConversation(2); return true; }
+    if (t.includes('飯店入住') || t.includes('入住')) { startConversation(3); return true; }
+    if (t.includes('飯店問題') || t.includes('投訴')) { startConversation(4); return true; }
+    if (t.includes('餐廳') || t.includes('點餐')) { startConversation(5); return true; }
+    if (t.includes('購物') || t.includes('殺價')) { startConversation(6); return true; }
+    if (t.includes('問路') || t.includes('地圖')) { startConversation(7); return true; }
+    if (t.includes('閒聊') || t.includes('外國人')) { startConversation(8); return true; }
+    if (t.includes('買票') || t.includes('景點')) { startConversation(9); return true; }
+    if (t.includes('地鐵') || t.includes('公車') || t.includes('交通')) { startConversation(10); return true; }
+    if (t.includes('緊急') || t.includes('求助')) { startConversation(11); return true; }
+  }
+  if (currentPage === 'listening') {
+    if (t.includes('是非題')) { startListening('yesno'); return true; }
+    if (t.includes('選擇題') || t.includes('選擇')) { startListening('choice'); return true; }
+    if (t.includes('再聽') || t.includes('再一次') || t.includes('重播')) { replayListening(); return true; }
+    if (t.includes('下一題') || t.includes('跳過')) { nextListeningQ(); return true; }
+  }
+  return false;
+}
+
+// ===== 導航 =====
+function navigateTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  currentPage = page;
+  const names = { home: '首頁', lessons: '課程中心', pronunciation: '發音練習', conversation: '對話練習', listening: '聽力練習', settings: '設定' };
+  const prompts = {
+    home: '首頁。你可以選擇開始課程、發音練習、或對話練習。',
+    lessons: '旅遊英語課程。請選擇旅遊基礎、進階旅遊、或旅遊達人。',
+    pronunciation: '旅遊發音練習。請選擇機場用語、飯店住宿、餐廳點餐、購物殺價、或緊急狀況。',
+    conversation: '對話練習。請選擇一個情境開始練習。',
+    listening: '聽力練習。請選擇是非題或選擇題。',
+    settings: '設定頁面。你可以在這裡調整語音和速度。'
+  };
+  speak(prompts[page] || names[page], 'zh');
+}
+
+function goHome() {
+  document.getElementById('lessonContent').style.display = 'none';
+  document.getElementById('lessonMenu').style.display = 'block';
+  document.getElementById('pronContent').style.display = 'none';
+  document.getElementById('pronMenu').style.display = 'block';
+  document.getElementById('convContent').style.display = 'none';
+  document.getElementById('convMenu').style.display = 'block';
+  document.getElementById('listContent').style.display = 'none';
+  document.getElementById('listMenu').style.display = 'block';
+  if (isRecording) { try { recognition.stop(); } catch(e){} }
+  navigateTo('home');
+  updateHomeUI();
+}
+
+// ===== 首頁 =====
+function updateHomeUI() {
+  const done = progress.daily || 0;
+  const target = 5;
+  const pct = Math.min(100, Math.round((done / target) * 100));
+  document.getElementById('dailyProgress').textContent = done + ' / ' + target;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('streakInfo').textContent = '連續學習：' + (progress.streak || 0) + ' 天';
+}
+
+// ===== 課程 =====
+function startLesson(level) {
+  lessonState.level = level;
+  lessonState.words = [...DATA[level]].sort(() => Math.random() - 0.5);
+  lessonState.index = 0;
+  lessonState.score = 0;
+  document.getElementById('lessonMenu').style.display = 'none';
+  document.getElementById('lessonContent').style.display = 'block';
+  document.getElementById('lessonLevelLabel').textContent = level === 'beginner' ? '初級課程' : '中級課程';
+  const labels = { travel_basic: '旅遊基礎', travel_advanced: '進階旅遊', travel_pro: '旅遊達人' };
+  const label = labels[level] || level;
+  speak(label + '。我會說一個旅遊英文句子，你跟著說喔！準備好了嗎？開始！', 'zh', null, () => {
+    setTimeout(showLessonWord, 500);
+  });
+}
+
+function showLessonWord() {
+  const words = lessonState.words;
+  const idx = lessonState.index;
+  if (idx >= words.length) { endLesson(); return; }
+  const w = words[idx];
+  const total = words.length;
+  document.getElementById('lessonCounter').textContent = '第 ' + (idx + 1) + ' 題 / 共 ' + total + ' 題';
+  document.getElementById('lessonProgress').style.width = Math.round((idx / total) * 100) + '%';
+  document.getElementById('lessonWord').textContent = w.word;
+  document.getElementById('lessonTranslation').textContent = w.zh;
+  setLessonStatus('準備好跟讀了嗎？', '');
+
+  if (settings.chineseExplain) {
+    speak('第' + (idx + 1) + '個，' + w.zh + '，英文說 ' + w.word, 'zh', null, () => {
+      setTimeout(() => speak(w.word, 'en'), 500);
+    });
+  } else {
+    speak(w.word, 'en');
+  }
+}
+
+function speakCurrentLesson() {
+  const w = lessonState.words[lessonState.index];
+  if (w) speak(w.word, 'en');
+}
+
+function speakCurrentLessonSlow() {
+  const w = lessonState.words[lessonState.index];
+  if (w) speakSlow(w.word, 'en');
+}
+
+function startLessonRecording() {
+  setLessonStatus('🎙️ 請跟著說...', 'listening');
+  speak('請跟讀：', 'zh', null, () => {
+    setTimeout(() => {
+      speakCurrentLesson();
+      setTimeout(() => {
+        startRecording('en-US', (result) => {
+          gradeLessonAnswer(result);
+        });
+      }, 1500);
+    }, 300);
+  });
+}
+
+function gradeLessonAnswer(result) {
+  const w = lessonState.words[lessonState.index];
+  const target = w.word.toLowerCase().replace(/[^a-z\s]/g, '');
+  const got = result.toLowerCase().replace(/[^a-z\s]/g, '');
+  const sim = similarity(target, got);
+
+  if (sim >= 0.6 || got.includes(target.split(' ')[0])) {
+    setLessonStatus('✅ 太棒了！說得很好！', 'success');
+    speak('Great job! 說得很好！', 'en', null, () => {
+      speak('很棒喔！', 'zh', null, () => {
+        lessonState.score++;
+        addProgress(1);
+        setTimeout(() => { lessonState.index++; showLessonWord(); }, 600);
+      });
+    });
+  } else {
+    setLessonStatus('⚠️ 再試一次！說：' + w.word, 'warning');
+    speak('Almost! Try again. ' + w.word, 'en', null, () => {
+      speak('再試一次喔，說：' + w.zh, 'zh');
+    });
+  }
+}
+
+function skipLessonWord() {
+  lessonState.index++;
+  showLessonWord();
+}
+
+function setLessonStatus(text, type) {
+  const el = document.getElementById('lessonStatus');
+  el.textContent = text;
+  el.className = 'status-box' + (type ? ' ' + type : '');
+}
+
+function endLesson() {
+  document.getElementById('lessonContent').style.display = 'none';
+  document.getElementById('lessonMenu').style.display = 'block';
+  const score = lessonState.score;
+  const total = Math.min(lessonState.index, lessonState.words.length);
+  speak('課程結束！你答對了' + score + '題，做得很好！', 'zh');
+  navigateTo('lessons');
+}
+
+// ===== 發音練習 =====
+function startPronunciation(category) {
+  pronState.category = category;
+  pronState.words = [...DATA[category]].sort(() => Math.random() - 0.5);
+  pronState.index = 0;
+  pronState.score = 0;
+  document.getElementById('pronMenu').style.display = 'none';
+  document.getElementById('pronContent').style.display = 'block';
+  const labels = { basic: '基本單字', phrases: '實用短句', numbers: '數字與時間' };
+  document.getElementById('pronCategory').textContent = labels[category] || category;
+  speak(labels[category] + '練習開始！我先說，你跟著說！', 'zh', null, () => {
+    setTimeout(showPronWord, 500);
+  });
+}
+
+function showPronWord() {
+  const words = pronState.words;
+  const idx = pronState.index;
+  if (idx >= words.length) { endPronunciation(); return; }
+  const w = words[idx];
+  document.getElementById('pronCounter').textContent = '第 ' + (idx + 1) + ' 題 / 共 ' + words.length + ' 題';
+  document.getElementById('pronProgress').style.width = Math.round((idx / words.length) * 100) + '%';
+  document.getElementById('pronScore').textContent = pronState.score;
+  document.getElementById('pronWord').textContent = w.word;
+  document.getElementById('pronMeaning').textContent = w.zh;
+  setPronStatus('按「聆聽發音」聽示範', '');
+  speak(w.word, 'en');
+}
+
+function speakCurrentPron() {
+  const w = pronState.words[pronState.index];
+  if (w) speak(w.word, 'en');
+}
+
+function speakCurrentPronSlow() {
+  const w = pronState.words[pronState.index];
+  if (w) speakSlow(w.word, 'en');
+}
+
+function startPronRecording() {
+  setPronStatus('🎙️ 請說出這個詞...', 'listening');
+  startRecording('en-US', (result) => {
+    gradePronAnswer(result);
+  });
+}
+
+function gradePronAnswer(result) {
+  const w = pronState.words[pronState.index];
+  const target = w.word.toLowerCase().replace(/[^a-z\s]/g, '');
+  const got = result.toLowerCase().replace(/[^a-z\s]/g, '');
+  const sim = similarity(target, got);
+
+  if (sim >= 0.6 || got.includes(target.split(' ')[0])) {
+    setPronStatus('✅ 發音正確！Good job!', 'success');
+    pronState.score++;
+    addProgress(1);
+    speak('Excellent!', 'en', null, () => {
+      speak('發音很棒！', 'zh', null, () => {
+        if (settings.autoAdvance) {
+          setTimeout(() => { pronState.index++; showPronWord(); }, 800);
+        }
+      });
+    });
+  } else {
+    setPronStatus('⚠️ 再試一次！', 'warning');
+    speak('Try again! ' + w.word, 'en', null, () => {
+      speak('加油！再說一次：' + w.zh, 'zh');
+    });
+  }
+}
+
+function nextPronWord() {
+  pronState.index++;
+  showPronWord();
+}
+
+function setPronStatus(text, type) {
+  const el = document.getElementById('pronStatus');
+  el.textContent = text;
+  el.className = 'status-box' + (type ? ' ' + type : '');
+}
+
+function endPronunciation() {
+  document.getElementById('pronContent').style.display = 'none';
+  document.getElementById('pronMenu').style.display = 'block';
+  const score = pronState.score;
+  speak('發音練習結束！你通過了' + score + '題。做得很好！', 'zh');
+  navigateTo('pronunciation');
+}
+
+// ===== 對話練習 =====
+function startConversation(idx) {
+  convState.scenarioIdx = idx;
+  const scenario = DATA.conversations[idx];
+  convState.steps = scenario.steps;
+  convState.stepIdx = 0;
+  document.getElementById('convMenu').style.display = 'none';
+  document.getElementById('convContent').style.display = 'block';
+  document.getElementById('convTitle').textContent = scenario.title;
+  speak('開始' + scenario.title.replace(/\(.*\)/, '') + '情境對話！', 'zh', null, () => {
+    setTimeout(showConvStep, 600);
+  });
+}
+
+function showConvStep() {
+  const steps = convState.steps;
+  const idx = convState.stepIdx;
+  if (idx >= steps.length) { endConversation(true); return; }
+  const step = steps[idx];
+  document.getElementById('convCounter').textContent = '第 ' + (idx + 1) + ' 步 / 共 ' + steps.length + ' 步';
+  document.getElementById('convProgress').style.width = Math.round((idx / steps.length) * 100) + '%';
+  document.getElementById('convHint').textContent = step.zh;
+  setConvStatus('', '');
+
+  if (step.speaker === 'app') {
+    document.getElementById('convPrompt').textContent = step.text;
+    setConvStatus('App 正在說話...', '');
+    if (settings.chineseExplain) {
+      speak(step.zh, 'zh', null, () => {
+        setTimeout(() => {
+          speak(step.text, 'en', null, () => {
+            convState.stepIdx++;
+            setTimeout(showConvStep, 500);
+          });
+        }, 400);
+      });
+    } else {
+      speak(step.text, 'en', null, () => {
+        convState.stepIdx++;
+        setTimeout(showConvStep, 500);
+      });
+    }
+  } else {
+    document.getElementById('convPrompt').textContent = '輪到你說了！';
+    setConvStatus('請回答：' + step.zh, 'warning');
+    speak('輪到你了！請說：' + step.zh, 'zh');
+  }
+}
+
+function replayConvPrompt() {
+  const idx = convState.stepIdx;
+  const step = convState.steps[idx];
+  if (step) {
+    if (step.speaker === 'app') speak(step.text, 'en');
+    else speak('請說：' + step.zh, 'zh');
+  }
+}
+
+function startConvRecording() {
+  const step = convState.steps[convState.stepIdx];
+  if (!step || step.speaker !== 'user') return;
+  setConvStatus('🎙️ 我在聽...', 'listening');
+  startRecording('en-US', (result) => {
+    gradeConvAnswer(result, step);
+  });
+}
+
+function gradeConvAnswer(result, step) {
+  const got = result.toLowerCase();
+  const matched = step.keywords.some(kw => got.includes(kw.toLowerCase()));
+
+  if (matched || result.length > 2) {
+    setConvStatus('✅ 很好！繼續！', 'success');
+    speak('Good!', 'en', null, () => {
+      speak('說得很好！', 'zh', null, () => {
+        convState.stepIdx++;
+        setTimeout(showConvStep, 600);
+      });
+    });
+  } else {
+    setConvStatus('⚠️ 沒聽清楚，再說一次！', 'warning');
+    speak('Please try again.', 'en', null, () => {
+      speak('我沒聽清楚，再說一次好嗎？' + step.zh, 'zh');
+    });
+  }
+}
+
+function showConvHint() {
+  const step = convState.steps[convState.stepIdx];
+  if (!step) return;
+  setConvStatus('💡 提示：' + step.text, '');
+  speak('提示是：' + step.text, 'en');
+}
+
+function nextConvStep() {
+  convState.stepIdx++;
+  showConvStep();
+}
+
+function setConvStatus(text, type) {
+  const el = document.getElementById('convStatus');
+  el.textContent = text;
+  el.className = 'status-box' + (type ? ' ' + type : '');
+}
+
+function endConversation(completed) {
+  document.getElementById('convContent').style.display = 'none';
+  document.getElementById('convMenu').style.display = 'block';
+  if (completed) {
+    addProgress(2);
+    speak('Wonderful! 對話練習完成！你表現得很棒！', 'en', null, () => {
+      speak('恭喜你完成對話練習！', 'zh');
+    });
+  } else {
+    speak('對話練習結束了。', 'zh');
+  }
+  navigateTo('conversation');
+}
+
+// ===== 聽力練習 =====
+function startListening(type) {
+  listState.type = type;
+  listState.questions = [...DATA.listening[type]].sort(() => Math.random() - 0.5);
+  listState.index = 0;
+  listState.score = 0;
+  document.getElementById('listMenu').style.display = 'none';
+  document.getElementById('listContent').style.display = 'block';
+  const label = type === 'yesno' ? '是非題' : '選擇題';
+  speak(label + '聽力練習開始！我說題目，你說答案。', 'zh', null, () => {
+    setTimeout(showListeningQ, 500);
+  });
+}
+
+function showListeningQ() {
+  const qs = listState.questions;
+  const idx = listState.index;
+  if (idx >= qs.length) { endListening(true); return; }
+  const q = qs[idx];
+  document.getElementById('listCounter').textContent = '第 ' + (idx + 1) + ' 題 / 共 ' + qs.length + ' 題';
+  document.getElementById('listProgress').style.width = Math.round((idx / qs.length) * 100) + '%';
+  document.getElementById('listScore').textContent = listState.score;
+  document.getElementById('listQuestion').textContent = q.question;
+  setListStatus('按「播放題目」聽題目', '');
+
+  const choicesEl = document.getElementById('listChoices');
+  choicesEl.innerHTML = '';
+  if (listState.type === 'choice' && q.options) {
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'btn-secondary';
+      btn.textContent = opt;
+      btn.onclick = () => { gradeListeningAnswer(opt.toLowerCase(), q); };
+      btn.setAttribute('aria-label', opt);
+      choicesEl.appendChild(btn);
+    });
+  } else if (listState.type === 'yesno') {
+    const yesBtn = document.createElement('button');
+    yesBtn.className = 'btn-primary';
+    yesBtn.textContent = '✅ Yes（是）';
+    yesBtn.onclick = () => gradeListeningAnswer('yes', q);
+    yesBtn.setAttribute('aria-label', 'Yes');
+    const noBtn = document.createElement('button');
+    noBtn.className = 'btn-danger';
+    noBtn.textContent = '❌ No（不是）';
+    noBtn.onclick = () => gradeListeningAnswer('no', q);
+    noBtn.setAttribute('aria-label', 'No');
+    choicesEl.appendChild(yesBtn);
+    choicesEl.appendChild(noBtn);
+  }
+
+  if (settings.chineseExplain) {
+    speak(q.zh, 'zh', null, () => {
+      setTimeout(() => speak(q.question, 'en'), 500);
+    });
+  } else {
+    speak(q.question, 'en');
+  }
+}
+
+function replayListening() {
+  const q = listState.questions[listState.index];
+  if (q) speak(q.question, 'en');
+}
+
+function startListenRecording() {
+  setListStatus('🎙️ 請說出你的答案...', 'listening');
+  startRecording('en-US', (result) => {
+    const q = listState.questions[listState.index];
+    gradeListeningAnswer(result.toLowerCase(), q);
+  });
+}
+
+function gradeListeningAnswer(result, q) {
+  const ans = q.answer.toLowerCase();
+  const got = result.toLowerCase();
+  const correct = got.includes(ans) || (ans === 'yes' && (got.includes('yes') || got.includes('對') || got.includes('是'))) ||
+    (ans === 'no' && (got.includes('no') || got.includes('不') || got.includes('錯')));
+
+  if (correct) {
+    setListStatus('✅ 答對了！' + q.explanation, 'success');
+    listState.score++;
+    addProgress(1);
+    speak('Correct! ' + q.explanation, 'en', null, () => {
+      speak('答對了！', 'zh', null, () => {
+        if (settings.autoAdvance) {
+          setTimeout(() => { listState.index++; showListeningQ(); }, 1000);
+        }
+      });
+    });
+  } else {
+    setListStatus('❌ 答錯了。正確答案：' + q.answer + '。' + q.explanation, 'warning');
+    speak('The answer is ' + q.answer + '. ' + q.explanation, 'en', null, () => {
+      speak('答案是' + (ans === 'yes' ? '是' : '不是') + '。' + q.explanation, 'zh');
+    });
+  }
+}
+
+function nextListeningQ() {
+  listState.index++;
+  showListeningQ();
+}
+
+function setListStatus(text, type) {
+  const el = document.getElementById('listStatus');
+  el.textContent = text;
+  el.className = 'status-box' + (type ? ' ' + type : '');
+}
+
+function endListening(completed) {
+  document.getElementById('listContent').style.display = 'none';
+  document.getElementById('listMenu').style.display = 'block';
+  const score = listState.score;
+  const total = listState.questions.length;
+  speak('聽力練習結束！你答對了' + score + '題，共' + total + '題。', 'zh');
+  navigateTo('listening');
+}
+
+// ===== 設定 =====
+function saveSettings() {
+  settings.enVoice = document.getElementById('enVoiceSelect').value;
+  settings.zhVoice = document.getElementById('zhVoiceSelect').value;
+  settings.rate = parseFloat(document.getElementById('rateSlider').value);
+  settings.volume = parseFloat(document.getElementById('volSlider').value);
+  settings.chineseExplain = document.getElementById('chineseExplain').checked;
+  settings.autoAdvance = document.getElementById('autoAdvance').checked;
+  localStorage.setItem('voiceLearnSettings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+  const s = localStorage.getItem('voiceLearnSettings');
+  if (s) {
+    try { settings = { ...settings, ...JSON.parse(s) }; } catch(e) {}
+  }
+  document.getElementById('rateSlider').value = settings.rate;
+  document.getElementById('rateLabel').textContent = settings.rate;
+  document.getElementById('volSlider').value = settings.volume;
+  document.getElementById('volLabel').textContent = settings.volume;
+  document.getElementById('chineseExplain').checked = settings.chineseExplain !== false;
+  document.getElementById('autoAdvance').checked = settings.autoAdvance !== false;
+}
+
+function testVoice() {
+  speak('Hello! Good morning! 早安！我是你的英文老師！', 'en', null, () => {
+    speak('語音測試完成！聽起來怎麼樣？', 'zh');
+  });
+}
+
+function resetProgress() {
+  if (confirm('確定要重置所有學習進度嗎？')) {
+    progress = { daily: 0, streak: 0, lastDate: '', completed: {} };
+    saveProgress();
+    updateHomeUI();
+    speak('進度已重置。加油，重新開始！', 'zh');
+  }
+}
+
+// ===== 進度管理 =====
+function addProgress(n) {
+  const today = new Date().toDateString();
+  if (progress.lastDate !== today) {
+    if (progress.lastDate === new Date(Date.now() - 86400000).toDateString()) {
+      progress.streak = (progress.streak || 0) + 1;
+    } else {
+      progress.streak = 1;
+    }
+    progress.lastDate = today;
+    progress.daily = 0;
+  }
+  progress.daily = (progress.daily || 0) + n;
+  saveProgress();
+  updateHomeUI();
+}
+
+function saveProgress() {
+  localStorage.setItem('voiceLearnProgress', JSON.stringify(progress));
+}
+
+function loadProgress() {
+  const p = localStorage.getItem('voiceLearnProgress');
+  if (p) {
+    try { progress = { ...progress, ...JSON.parse(p) }; } catch(e) {}
+  }
+  const today = new Date().toDateString();
+  if (progress.lastDate !== today) { progress.daily = 0; }
+}
+
+// ===== 工具函數 =====
+function similarity(a, b) {
+  if (!a || !b) return 0;
+  a = a.trim(); b = b.trim();
+  if (a === b) return 1;
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
+  if (longer.length === 0) return 1;
+  const editDist = levenshtein(longer, shorter);
+  return (longer.length - editDist) / longer.length;
+}
+
+function levenshtein(a, b) {
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+    for (let j = 1; j <= a.length; j++) {
+      if (i === 0) { matrix[i][j] = j; continue; }
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+// ===== 鍵盤快捷鍵 =====
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { goHome(); }
+  if (e.key === ' ' && !e.target.matches('input,select,textarea')) {
+    e.preventDefault();
+    if (currentPage === 'lessons') startLessonRecording();
+    else if (currentPage === 'pronunciation') startPronRecording();
+    else if (currentPage === 'conversation') startConvRecording();
+    else if (currentPage === 'listening') startListenRecording();
+  }
+});
+
+// ===== 長按語音指令 =====
+let longPressTimer = null;
+document.addEventListener('touchstart', (e) => {
+  if (e.target.closest('button')) return;
+  longPressTimer = setTimeout(() => {
+    speak('語音指令模式。請說出你要做的事。', 'zh', null, () => {
+      startRecording('zh-TW', (result) => {
+        if (!processVoiceCommand(result)) {
+          speak('沒有找到對應的指令，請再試一次。', 'zh');
+        }
+      });
+    });
+  }, 800);
+});
+document.addEventListener('touchend', () => {
+  clearTimeout(longPressTimer);
+});
+
+// ===== Service Worker (PWA) =====
+const SW_CODE = `
+const CACHE = 'voice-learn-v1';
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+});
+`;
+
+if ('serviceWorker' in navigator) {
+  const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(e => console.log('SW:', e));
+}
+
+// PWA Manifest
+const manifest = {
+  name: '靠聲音學英文',
+  short_name: '聲音學英文',
+  description: '專為視力不佳長者設計的語音英文學習 App',
+  start_url: '/',
+  display: 'standalone',
+  background_color: '#111111',
+  theme_color: '#111111',
+  icons: [
+    { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23111"/><text y=".9em" font-size="90">🔊</text></svg>', sizes: '192x192', type: 'image/svg+xml' }
+  ]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
+</script>
+</body>
+</html>
