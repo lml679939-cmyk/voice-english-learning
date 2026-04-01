@@ -958,6 +958,8 @@ function initSpeechRecognition() {
   recognition.onend = () => {
     isRecording = false;
     document.getElementById('micIndicator').classList.remove('active');
+    // 若手動 stop() 但沒偵測到語音（onresult 未觸發），仍要呼叫 callback 避免按鈕卡住
+    if (currentCallback) { currentCallback(''); currentCallback = null; }
   };
   recognition.onerror = (e) => {
     isRecording = false;
@@ -1460,7 +1462,7 @@ function showConvExchange() {
   document.getElementById('convCounter').textContent = '第 ' + (idx + 1) + ' 題 / 共 ' + exchanges.length + ' 題';
   document.getElementById('convProgress').style.width = Math.round((idx / exchanges.length) * 100) + '%';
   document.getElementById('convPrompt').textContent = ex.ask;
-  document.getElementById('convHint').textContent = '💡 ' + ex.hint;
+  document.getElementById('convHint').textContent = '';   // 提示隱藏，按「範例答案」才顯示
   document.getElementById('convYouSaid').textContent = '';
   document.getElementById('convAppReply').textContent = '';
   setConvStatus('系統說話中，請聽題目…', '');
@@ -1488,8 +1490,25 @@ function replayConvPrompt() {
 function startConvRecording() {
   const ex = convState.exchanges[convState.exchangeIdx];
   if (!ex) return;
-  setConvStatus('🎙️ 我在聽你說…', 'listening');
+  const btn = document.getElementById('convRecordBtn');
+
+  if (isRecording) {
+    // ===== 再點一次 → 停止錄音，觸發判分 =====
+    btn.textContent = '🎙️ 我來回答';
+    btn.style.background = '';
+    setConvStatus('⏳ 分析中…', '');
+    try { recognition.stop(); } catch(e) {}
+    // onend 會呼叫 callback（上面的 onend 修復保證這一點）
+    return;
+  }
+
+  // ===== 第一次點 → 開始錄音 =====
+  btn.textContent = '⏹️ 點我停止';
+  btn.style.background = '#cc2200';
+  setConvStatus('🔴 錄音中… 說完再點一次「停止」', 'listening');
   startRecording('en-US', (result) => {
+    btn.textContent = '🎙️ 我來回答';
+    btn.style.background = '';
     gradeConvAnswer(result, ex);
   });
 }
@@ -1564,6 +1583,11 @@ function showConvHint() {
 }
 
 function nextConvStep() {
+  // 若正在錄音，先停止
+  if (isRecording) { try { recognition.stop(); } catch(e) {} }
+  const btn = document.getElementById('convRecordBtn');
+  btn.textContent = '🎙️ 我來回答';
+  btn.style.background = '';
   convState.exchangeIdx++;
   document.getElementById('convYouSaid').textContent = '';
   document.getElementById('convAppReply').textContent = '';
