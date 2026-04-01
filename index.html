@@ -462,18 +462,24 @@
   <div id="convContent" style="display:none;">
     <div class="card" style="text-align:center;">
       <div style="font-size:28px; font-weight:bold; color:#FFFF00;" id="convTitle">點餐</div>
-      <div style="font-size:22px; color:#888888;" id="convCounter">第 1 步 / 共 6 步</div>
+      <div style="font-size:22px; color:#888888;" id="convCounter">第 1 題 / 共 3 題</div>
       <div class="progress-bar"><div class="progress-fill" id="convProgress" style="width:0%"></div></div>
     </div>
-    <div class="word-display" id="convPrompt" style="font-size:32px;">...</div>
-    <div style="font-size:22px; color:#AAAAAA; text-align:center; padding:8px;" id="convHint"></div>
+    <!-- 系統問題 -->
+    <div class="word-display" id="convPrompt" style="font-size:27px; line-height:1.5;">...</div>
+    <!-- 提示（你應該說什麼） -->
+    <div style="font-size:19px; color:#AAAAAA; text-align:center; padding:4px 8px;" id="convHint"></div>
+    <!-- 你說了什麼（藍色） -->
+    <div style="font-size:21px; color:#88CCFF; text-align:center; padding:6px 8px; min-height:28px; font-style:italic;" id="convYouSaid"></div>
+    <!-- 系統情境回覆（綠色） -->
+    <div style="font-size:21px; color:#88FF99; text-align:center; padding:6px 8px; min-height:28px;" id="convAppReply"></div>
     <div class="status-box" id="convStatus">準備對話</div>
-    <button class="btn-primary" onclick="replayConvPrompt()" aria-label="再說一次">🔊 再說一次</button>
+    <button class="btn-primary" onclick="replayConvPrompt()" aria-label="再說一次題目">🔊 再播題目</button>
     <button class="btn-primary" onclick="startConvRecording()" id="convRecordBtn" aria-label="我來回答">🎙️ 我來回答</button>
-    <button class="btn-warning" onclick="showConvHint()" aria-label="提示答案">💡 提示答案</button>
-    <button class="btn-secondary" onclick="nextConvStep()" aria-label="跳過此步">⏭️ 跳過此步</button>
-    <button class="btn-danger" onclick="endConversation()" aria-label="結束對話">🏠 結束對話</button>
-    <div class="voice-cmd-hint">💡 說「回答」開始錄音，「提示」看提示，「再說一次」重播</div>
+    <button class="btn-warning" onclick="showConvHint()" aria-label="看範例答案">💡 範例答案</button>
+    <button class="btn-secondary" onclick="nextConvStep()" aria-label="跳過此題">⏭️ 跳過此題</button>
+    <button class="btn-danger" onclick="endConversation(false)" aria-label="結束對話">🏠 結束對話</button>
+    <div class="voice-cmd-hint">💡 說「回答」開始錄音，「提示」看範例，「再說一次」重播題目</div>
   </div>
 </div>
 
@@ -741,144 +747,98 @@ const DATA = {
   conversations: [
     { // 0
       title: '機場報到 (Airport Check-in)', icon: '✈️',
-      steps: [
-        { speaker: 'app', text: 'Good morning! May I see your passport and booking confirmation, please?', zh: '早安！可以給我看您的護照和訂位確認嗎？', keywords: [] },
-        { speaker: 'user', text: 'Here you are. I have a reservation on flight CI-802 to Tokyo.', zh: '在這裡。我訂了 CI-802 飛往東京的班機。', keywords: ['here', 'reservation', 'booking', 'flight', 'passport', 'ticket', 'tokyo'] },
-        { speaker: 'app', text: 'Thank you. How many bags would you like to check in today?', zh: '謝謝。您今天有幾件行李要托運？', keywords: [] },
-        { speaker: 'user', text: 'Just one suitcase. I also have a carry-on bag.', zh: '只有一個行李箱。我也有一個手提袋。', keywords: ['one', 'suitcase', 'bag', 'carry', 'luggage', 'just'] },
-        { speaker: 'app', text: 'Would you prefer a window seat or an aisle seat?', zh: '您喜歡靠窗還是走道的座位？', keywords: [] },
-        { speaker: 'user', text: 'A window seat please. And could I request an exit row for extra legroom?', zh: '靠窗的座位，謝謝。可以安排緊急出口那排有更多腿部空間嗎？', keywords: ['window', 'aisle', 'seat', 'exit', 'row', 'legroom', 'please'] },
-        { speaker: 'app', text: 'Certainly. Your boarding gate is B12. Boarding begins at nine forty-five.', zh: '當然。您的登機門是 B12，九點四十五分開始登機。', keywords: [] },
-        { speaker: 'user', text: 'Thank you. Is there a duty-free shop near gate B12?', zh: '謝謝。B12 登機門附近有免稅商店嗎？', keywords: ['thank', 'duty', 'free', 'shop', 'where', 'near'] }
+      exchanges: [
+        { ask: 'Good morning! May I see your passport and booking confirmation, please?', askZh: '早安！可以給我看您的護照和訂位確認嗎？', hint: '說：Yes, here you are. I have a reservation on flight CI-802.', model: 'Yes, here you are. I have a reservation on flight CI-802 to Tokyo.', yesWords: ['yes','here','sure','of course','certainly','have','passport'], noWords: ['no','forgot',"don't",'sorry','lost','left'], replyYes: 'Thank you! Let me check your booking. How many bags would you like to check in?', replyYesZh: '謝謝！讓我確認訂位。您今天有幾件行李要托運？', replyNo: 'Oh, that is a problem. Without your passport you cannot board. Please check your bag carefully.', replyNoZh: '這是個問題，沒有護照無法登機，請仔細找找您的包包。' },
+        { ask: 'How many bags would you like to check in today?', askZh: '您今天有幾件行李要托運？', hint: '說：Just one suitcase please. I also have a carry-on bag.', model: 'Just one suitcase, please. I also have a carry-on bag.', yesWords: ['one','two','three','suitcase','bag','just','check','luggage'], noWords: ['no','none','only carry'], replyYes: 'Perfect. Would you prefer a window seat or an aisle seat?', replyYesZh: '好的。您喜歡靠窗還是走道的座位？', replyNo: 'Carry-on only is fine! Window seat or aisle seat?', replyNoZh: '只帶手提行李沒問題！靠窗還是走道？' },
+        { ask: 'Would you prefer a window seat or an aisle seat?', askZh: '您喜歡靠窗還是走道的座位？', hint: '說：Window seat please. / Aisle seat please, I need to walk around.', model: 'Window seat please. Could I also have an exit row for extra legroom?', yesWords: ['window','aisle','seat','exit','row','either','middle'], noWords: ['no preference',"don't mind"], replyYes: 'Great choice! Your boarding gate is B12. Boarding begins at nine forty-five. Have a wonderful flight!', replyYesZh: '很好！您的登機門是 B12，九點四十五分開始登機，旅途愉快！', replyNo: 'No problem! I will assign you a comfortable seat. Gate B12, boarding at nine forty-five. Have a great trip!', replyNoZh: '沒問題！我幫您安排好座位，登機門 B12，九點四十五分，旅途愉快！' }
       ]
     },
     { // 1
       title: '通關入境 (Customs & Immigration)', icon: '🛂',
-      steps: [
-        { speaker: 'app', text: 'Good afternoon. Passport please. What is the purpose of your visit?', zh: '下午好。請出示護照。您此行的目的是？', keywords: [] },
-        { speaker: 'user', text: 'Here is my passport. I am here for sightseeing and tourism.', zh: '這是我的護照。我來觀光旅遊的。', keywords: ['here', 'passport', 'tourism', 'holiday', 'vacation', 'sightseeing'] },
-        { speaker: 'app', text: 'How long are you planning to stay in the country?', zh: '您計劃在這個國家待多久？', keywords: [] },
-        { speaker: 'user', text: 'Ten days. I have a return ticket already booked for the fourteenth.', zh: '十天。我已經訂好十四號的回程機票了。', keywords: ['ten', 'days', 'return', 'ticket', 'booked', 'fourteenth'] },
-        { speaker: 'app', text: 'Where will you be staying during your visit?', zh: '您停留期間住在哪裡？', keywords: [] },
-        { speaker: 'user', text: 'At the Grand Hyatt Hotel in the city center. Here is my booking confirmation.', zh: '住在市中心的君悅飯店。這是我的訂房確認。', keywords: ['hotel', 'hyatt', 'city', 'center', 'booking', 'confirmation'] },
-        { speaker: 'app', text: 'Do you have anything to declare at customs?', zh: '您有任何東西要向海關申報嗎？', keywords: [] },
-        { speaker: 'user', text: 'No, I have nothing to declare. Just personal belongings and gifts.', zh: '沒有，我沒有要申報的。只有個人物品和禮物。', keywords: ['no', 'nothing', 'declare', 'personal', 'belongings', 'gifts'] }
+      exchanges: [
+        { ask: 'Good afternoon. Passport please. What is the purpose of your visit?', askZh: '下午好，請出示護照。您此行的目的是？', hint: '說：Here is my passport. I am here for sightseeing and tourism.', model: 'Here is my passport. I am here for sightseeing and tourism.', yesWords: ['tourism','sightseeing','holiday','vacation','travel','leisure','here'], noWords: ['business','work','conference','meeting'], replyYes: 'How lovely! How long are you planning to stay?', replyYesZh: '真好！您計劃停留多久？', replyNo: 'I see. Do you have a business invitation letter or conference registration?', replyNoZh: '我了解，您有商務邀請函或會議報名確認嗎？' },
+        { ask: 'How long are you planning to stay in the country?', askZh: '您計劃在這個國家待多久？', hint: '說：Ten days. I have a return ticket already booked.', model: 'Ten days. I have a return ticket already booked for the fourteenth.', yesWords: ['day','days','week','weeks','night','nights','ten','seven','fourteen'], noWords: ["don't know",'not sure','open'], replyYes: 'Alright. And where will you be staying?', replyYesZh: '好的，您停留期間住在哪裡？', replyNo: 'Please provide your approximate stay duration. You must have a return ticket.', replyNoZh: '請告知大概停留時間，您必須要有回程票。' },
+        { ask: 'Do you have anything to declare at customs?', askZh: '您有任何東西要向海關申報嗎？', hint: '說：No, I have nothing to declare. Just personal belongings and gifts.', model: 'No, I have nothing to declare. Just personal belongings and some gifts.', yesWords: ['yes','some','items','goods','cash','declare'], noWords: ['no','nothing','none','just personal','belongings'], replyYes: 'Please proceed to the declaration counter on your left. Welcome!', replyYesZh: '請前往您左邊的申報台，歡迎入境！', replyNo: 'Perfect. Welcome! Enjoy your visit!', replyNoZh: '很好，歡迎入境！祝您玩得開心！' }
       ]
     },
     { // 2
       title: '搭計程車 (Taking a Taxi)', icon: '🚕',
-      steps: [
-        { speaker: 'app', text: 'Hello! Where would you like to go?', zh: '你好！請問要去哪裡？', keywords: [] },
-        { speaker: 'user', text: 'To the Marriott Hotel on Fifth Avenue, please.', zh: '去第五大道的萬豪酒店，謝謝。', keywords: ['hotel', 'marriott', 'avenue', 'street', 'please', 'go', 'take'] },
-        { speaker: 'app', text: 'No problem. Traffic is a bit heavy. It should take about twenty-five minutes.', zh: '沒問題。車有點多，大概二十五分鐘。', keywords: [] },
-        { speaker: 'user', text: 'That is fine. Could you take the highway to save time?', zh: '沒問題。可以走高速公路節省時間嗎？', keywords: ['fine', 'okay', 'highway', 'expressway', 'faster', 'save', 'time'] },
-        { speaker: 'app', text: 'Sure. We have arrived. The fare is forty-two dollars.', zh: '好的。到了，車費是四十二元。', keywords: [] },
-        { speaker: 'user', text: 'Here is fifty dollars. Please keep the change.', zh: '這是五十元，不用找了。', keywords: ['here', 'fifty', 'keep', 'change', 'tip', 'dollars'] }
+      exchanges: [
+        { ask: 'Hello! Where would you like to go today?', askZh: '你好！請問要去哪裡？', hint: '說：To the Marriott Hotel on Fifth Avenue, please.', model: 'To the Marriott Hotel on Fifth Avenue, please.', yesWords: ['hotel','airport','station','center','street','avenue','please','go'], noWords: ["don't know",'not sure'], replyYes: 'No problem! Traffic is a bit heavy today. About twenty-five minutes. Shall we take the highway?', replyYesZh: '沒問題！車有點多，大概二十五分鐘，要走高速公路嗎？', replyNo: "That's okay, take your time to decide. I'll wait.", replyNoZh: '沒關係，您慢慢想，我等您。' },
+        { ask: "Traffic is heavy today. Shall I take the highway to save time?", askZh: '車有點多，要走高速公路節省時間嗎？', hint: '說：Yes please, take the highway. I am in a hurry.', model: 'Yes please, take the highway. I am in a bit of a hurry.', yesWords: ['yes','sure','please','highway','expressway','faster','hurry'], noWords: ['no','regular','normal','fine',"don't mind"], replyYes: 'Sure! We should be there in about fifteen minutes then.', replyYesZh: '好的！這樣大概十五分鐘就到了。', replyNo: 'Alright, no problem! We will take the regular road.', replyNoZh: '好的，沒問題，走一般道路。' },
+        { ask: 'We have arrived! The fare is forty-two dollars.', askZh: '到了！車費是四十二元。', hint: '說：Here is fifty dollars. Please keep the change.', model: 'Here is fifty dollars. Please keep the change. Thank you!', yesWords: ['here','fifty','change','keep','card','tip','dollars','thank'], noWords: ['receipt','invoice','exact','change back'], replyYes: 'Thank you so much! Have a wonderful stay!', replyYesZh: '非常感謝！祝您住宿愉快！', replyNo: 'Of course, here is your change and receipt. Thank you!', replyNoZh: '當然，這是您的找零和收據，謝謝！' }
       ]
     },
     { // 3
       title: '飯店入住 (Hotel Check-in)', icon: '🏨',
-      steps: [
-        { speaker: 'app', text: 'Good evening and welcome! Do you have a reservation with us?', zh: '晚上好，歡迎！您有預訂嗎？', keywords: [] },
-        { speaker: 'user', text: 'Yes. I have a reservation for three nights under the name Chen.', zh: '有的，我以陳先生的名義訂了三晚。', keywords: ['yes', 'reservation', 'booking', 'nights', 'name', 'chen'] },
-        { speaker: 'app', text: 'Found it. Would you prefer a high floor with a city view?', zh: '找到了。您要高樓層有城市景觀的房間嗎？', keywords: [] },
-        { speaker: 'user', text: 'That would be wonderful. Also, is Wi-Fi complimentary for guests?', zh: '那太好了。另外，房客使用 Wi-Fi 免費嗎？', keywords: ['wonderful', 'great', 'wifi', 'complimentary', 'free', 'internet'] },
-        { speaker: 'app', text: 'Yes, Wi-Fi is complimentary. Breakfast is served from seven to ten-thirty on the second floor.', zh: '是的，Wi-Fi 免費。早餐在二樓供應，從七點到十點半。', keywords: [] },
-        { speaker: 'user', text: 'Perfect. Could I also arrange a wake-up call for six AM tomorrow?', zh: '很好。可以安排明天早上六點的叫醒服務嗎？', keywords: ['wake', 'call', 'six', 'tomorrow', 'morning', 'arrange', 'please'] },
-        { speaker: 'app', text: 'Of course. Here is your key card. Enjoy your stay!', zh: '當然。這是您的房卡，祝您住宿愉快！', keywords: [] },
-        { speaker: 'user', text: 'Thank you very much. Could you have my luggage sent up to the room?', zh: '非常感謝。可以幫我把行李送到房間嗎？', keywords: ['thank', 'luggage', 'send', 'room', 'carry', 'bag'] }
+      exchanges: [
+        { ask: 'Good evening and welcome! Do you have a reservation with us?', askZh: '晚上好，歡迎！您有預訂嗎？', hint: '說：Yes, I have a reservation for three nights under the name Chen.', model: 'Yes, I have a reservation for three nights under the name Chen.', yesWords: ['yes','reservation','booking','nights','name'], noWords: ['no',"don't",'walk-in','without'], replyYes: 'Found it! Would you prefer a high floor room with a city view?', replyYesZh: '找到了！您要高樓層有城市景觀的房間嗎？', replyNo: 'No problem! We have rooms available. May I have your name and ID please?', replyNoZh: '沒問題！我們有空房，可以告訴我您的名字和證件嗎？' },
+        { ask: 'Would you like a high floor room with a city view?', askZh: '您要高樓層有城市景觀的房間嗎？', hint: '說：Yes, that would be wonderful! Is Wi-Fi complimentary for guests?', model: 'Yes, that would be wonderful! Is Wi-Fi complimentary for guests?', yesWords: ['yes','wonderful','great','perfect','city','view','high','love'], noWords: ['no','lower','quiet','prefer'], replyYes: 'Excellent! Wi-Fi is complimentary. Breakfast is on the second floor from seven to ten-thirty.', replyYesZh: '太好了！Wi-Fi 免費，早餐在二樓七點到十點半。', replyNo: 'Of course! A lower floor is quieter. Wi-Fi is complimentary for all guests.', replyNoZh: '當然！低樓層更安靜，所有房客 Wi-Fi 均免費。' },
+        { ask: 'Here is your key card. Is there anything else you need tonight?', askZh: '這是您的房卡，今晚還有什麼需要嗎？', hint: '說：Could I have a wake-up call at six AM tomorrow please?', model: 'Could I have a wake-up call at six AM tomorrow, please?', yesWords: ['wake','call','towel','pillow','luggage','send','extra','please','six'], noWords: ['no','nothing','fine','good',"that's all"], replyYes: 'Certainly! All arranged for you. Enjoy your stay, good night!', replyYesZh: '當然！都幫您安排好了，祝您住宿愉快，晚安！', replyNo: 'Wonderful! Dial zero for the front desk anytime. Good night!', replyNoZh: '很好！如需任何服務請撥零找前台，晚安！' }
       ]
     },
     { // 4
       title: '飯店問題 (Hotel Complaint)', icon: '🛎️',
-      steps: [
-        { speaker: 'app', text: 'Front desk, this is Sarah speaking. How may I help you?', zh: '前台，我是 Sarah。請問有什麼需要幫忙的嗎？', keywords: [] },
-        { speaker: 'user', text: 'Hello. I am in room 1204. The air conditioning is not working properly.', zh: '你好，我住一二零四室。冷氣運作不正常。', keywords: ['room', 'air', 'conditioning', 'not', 'working', 'broken', 'problem'] },
-        { speaker: 'app', text: 'I sincerely apologize for the inconvenience. Shall I send maintenance right away?', zh: '非常抱歉造成您的不便。要馬上派維修人員過去嗎？', keywords: [] },
-        { speaker: 'user', text: 'Yes please. Also, the noise from the hallway is quite loud. Could I change rooms?', zh: '是的麻煩了。另外走廊的噪音很大，我可以換房間嗎？', keywords: ['yes', 'noise', 'hallway', 'loud', 'change', 'switch', 'room', 'quiet'] },
-        { speaker: 'app', text: 'I understand. We do have a quiet room on a higher floor available. Would you like to move?', zh: '我了解。我們有一間較高樓層的安靜房間可以安排，您想換嗎？', keywords: [] },
-        { speaker: 'user', text: 'Yes, that would be great. And could you send extra pillows and towels as well?', zh: '好的，那很好。可以順便送多幾個枕頭和毛巾嗎？', keywords: ['yes', 'great', 'pillows', 'towels', 'extra', 'send', 'also'] }
+      exchanges: [
+        { ask: 'Front desk, this is Sarah speaking. How may I help you?', askZh: '前台，我是 Sarah，請問有什麼需要幫忙的嗎？', hint: '說：I am in room 1204. The air conditioning is not working properly.', model: 'Hello. I am in room 1204. The air conditioning is not working properly.', yesWords: ['room','air','conditioning','broken','not working','problem','noise','water','wifi'], noWords: [], replyYes: 'I sincerely apologize for the inconvenience! Shall I send our maintenance team right away?', replyYesZh: '非常抱歉造成您的不便！要馬上派維修人員過去嗎？', replyNo: 'I understand. Please describe your issue so I can help you.', replyNoZh: '我了解，請描述您的問題讓我幫助您。' },
+        { ask: 'Shall I send our maintenance team to your room right away?', askZh: '要馬上派維修人員到您的房間嗎？', hint: '說：Yes please. Also, the hallway noise is very loud. Can I change rooms?', model: 'Yes please. Also, the noise from the hallway is quite loud. Could I change rooms?', yesWords: ['yes','please','send','sure','also','change','switch','move','noise'], noWords: ['no','wait','later'], replyYes: 'Of course! I will send maintenance immediately and arrange a quieter room for you.', replyYesZh: '當然！我立刻派維修人員，並為您安排更安靜的房間。', replyNo: 'Alright. Please call us whenever you are ready. We are happy to help!', replyNoZh: '好的，您準備好了隨時打電話，很樂意為您服務！' },
+        { ask: 'We have a quiet room on a higher floor. Would you like to move?', askZh: '我們有高樓層的安靜房間，您想換嗎？', hint: '說：Yes, that would be great! Could you also send extra pillows and towels?', model: 'Yes, that would be great! Could you also send extra pillows and towels please?', yesWords: ['yes','great','please','towels','pillows','extra','wonderful','also'], noWords: ['no','stay',"don't want",'fine here'], replyYes: 'Absolutely! Extra towels and pillows will be sent up shortly. Sorry for the trouble!', replyYesZh: '當然！毛巾和枕頭馬上送到，非常抱歉造成您的不便！', replyNo: 'Understood! Please let us know if you change your mind. We want your stay to be comfortable!', replyNoZh: '了解！如果改變主意請告訴我們，我們希望您住得舒適！' }
       ]
     },
     { // 5
       title: '餐廳點餐 (Restaurant Ordering)', icon: '🍽️',
-      steps: [
-        { speaker: 'app', text: 'Good evening! Do you have a reservation, or are you dining as a walk-in?', zh: '晚上好！您有訂位，還是直接來的？', keywords: [] },
-        { speaker: 'user', text: 'We have a reservation for two at seven. The name is Lee.', zh: '我們七點有訂位，兩位，名字是李。', keywords: ['reservation', 'two', 'seven', 'name', 'lee', 'booking'] },
-        { speaker: 'app', text: 'Right this way. Can I start you with some drinks while you look at the menu?', zh: '這邊請。您看菜單的時候要先點飲料嗎？', keywords: [] },
-        { speaker: 'user', text: 'Sparkling water for me, please. What is today\'s chef\'s special?', zh: '我要氣泡水，謝謝。今天主廚推薦是什麼？', keywords: ['water', 'sparkling', 'still', 'special', 'today', 'chef', 'recommend'] },
-        { speaker: 'app', text: 'Tonight\'s special is pan-seared salmon with seasonal vegetables and herb butter.', zh: '今晚的特餐是香煎鮭魚配時令蔬菜和香草奶油。', keywords: [] },
-        { speaker: 'user', text: 'That sounds wonderful. I will have that. I should mention I am lactose intolerant.', zh: '聽起來很棒。我就點那個。我要先說明我有乳糖不耐症。', keywords: ['wonderful', 'have', 'that', 'lactose', 'intolerant', 'allergy', 'dairy'] },
-        { speaker: 'app', text: 'No problem at all. We can prepare it without any dairy. Anything else?', zh: '完全沒問題。我們可以不加乳製品準備。還需要別的嗎？', keywords: [] },
-        { speaker: 'user', text: 'That is all for now. And could we have separate bills at the end, please?', zh: '目前這樣就好了。最後可以分開結帳嗎？', keywords: ['all', 'separate', 'bills', 'check', 'split', 'pay', 'end', 'please'] }
+      exchanges: [
+        { ask: 'Good evening! Do you have a reservation, or are you dining as a walk-in?', askZh: '晚上好！您有訂位，還是直接來的？', hint: '說：We have a reservation for two at seven. The name is Lee.', model: 'We have a reservation for two at seven. The name is Lee.', yesWords: ['reservation','booking','two','three','name','seven','eight'], noWords: ['no','walk-in','without',"don't"], replyYes: 'Right this way! Can I start you with some drinks?', replyYesZh: '這邊請！要先點些飲料嗎？', replyNo: 'No problem! We have a table for two available right now. Right this way!', replyNoZh: '沒問題！我們有兩人桌，這邊請！' },
+        { ask: "Can I start you with drinks? Tonight's special is pan-seared salmon.", askZh: '要先點飲料嗎？今晚特餐是香煎鮭魚。', hint: '說：Sparkling water please. I will have the salmon. I am lactose intolerant.', model: 'Sparkling water please. I will have the salmon. I should mention I am lactose intolerant.', yesWords: ['water','sparkling','juice','wine','salmon','special','that','allerg','lactose','intolerant'], noWords: ['no drink','nothing to drink'], replyYes: 'Excellent choice! We can prepare the salmon without dairy. Anything else?', replyYesZh: '很棒的選擇！我們可以不加乳製品準備鮭魚，還需要別的嗎？', replyNo: 'Of course! Just water is fine. What would you like to order?', replyNoZh: '當然！只要水完全沒問題，請問您想點什麼？' },
+        { ask: 'Is there anything else I can get for you?', askZh: '還需要別的嗎？', hint: '說：That is all for now. Could we have separate bills please?', model: 'That is all for now. Could we have separate bills at the end, please?', yesWords: ['separate','bill','check','split','dessert','menu','more','please'], noWords: ['no',"that's all",'nothing','fine'], replyYes: 'Of course! Enjoy your meal. I will bring separate bills at the end.', replyYesZh: '當然！請慢用，最後為您分開結帳。', replyNo: 'Enjoy your meal! Call me if you need anything.', replyNoZh: '請慢用！如果需要任何服務隨時叫我。' }
       ]
     },
     { // 6
       title: '購物殺價 (Shopping)', icon: '🛍️',
-      steps: [
-        { speaker: 'app', text: 'Welcome! Can I help you find something today?', zh: '歡迎！今天需要幫您找什麼嗎？', keywords: [] },
-        { speaker: 'user', text: 'I am looking for a leather handbag as a gift for my daughter.', zh: '我在找一個皮包，要送給我女兒當禮物。', keywords: ['looking', 'leather', 'handbag', 'bag', 'gift', 'daughter', 'present'] },
-        { speaker: 'app', text: 'This one is very popular. It is three hundred and fifty dollars.', zh: '這款很受歡迎，三百五十元。', keywords: [] },
-        { speaker: 'user', text: 'That is quite expensive. Do you offer any discount for cash payment?', zh: '那相當貴了。現金付款有折扣嗎？', keywords: ['discount', 'cash', 'cheaper', 'expensive', 'reduce', 'price', 'offer'] },
-        { speaker: 'app', text: 'We can offer ten percent off for cash. That would be three hundred and fifteen dollars.', zh: '現金的話可以打九折，三百一十五元。', keywords: [] },
-        { speaker: 'user', text: 'I will take it. And can I get a tax refund form? I am a foreign tourist.', zh: '我買了。可以給我退稅表格嗎？我是外國觀光客。', keywords: ['take', 'tax', 'refund', 'form', 'tourist', 'foreign', 'receipt'] }
+      exchanges: [
+        { ask: 'Welcome! Can I help you find something today?', askZh: '歡迎！今天需要幫您找什麼嗎？', hint: '說：I am looking for a leather handbag as a gift for my daughter.', model: 'I am looking for a leather handbag as a gift for my daughter.', yesWords: ['looking','handbag','bag','gift','souvenir','jacket','shoes','find'], noWords: ['browsing','just looking','no thanks'], replyYes: 'Wonderful! This one is very popular. It is three hundred and fifty dollars.', replyYesZh: '太好了！這款非常受歡迎，三百五十元。', replyNo: 'Of course! Take your time. Just let me know if you need any help.', replyNoZh: '當然！您慢慢看，有需要隨時告訴我。' },
+        { ask: 'This bag is three hundred and fifty dollars. What do you think?', askZh: '這個包三百五十元，您覺得如何？', hint: '說：It is quite expensive. Do you offer a discount for cash payment?', model: 'That is quite expensive. Do you offer any discount for cash payment?', yesWords: ['expensive','discount','cash','cheaper','reduce','lower','price','deal'], noWords: ["i'll take it",'perfect','fine',"that's okay"], replyYes: 'We can offer ten percent off for cash! That would be three hundred and fifteen dollars!', replyYesZh: '現金可以打九折，三百一十五元！', replyNo: 'Great! You have excellent taste. Will that be cash or card?', replyNoZh: '太好了！您真有眼光，現金還是刷卡？' },
+        { ask: 'So will you be taking the bag today?', askZh: '那您今天會買這個包嗎？', hint: '說：Yes, I will take it. Can I get a tax refund form? I am a foreign tourist.', model: "Yes, I'll take it. Can I get a tax refund form? I am a foreign tourist.", yesWords: ["take","buy","get","tax","refund","receipt","yes","i'll"], noWords: ['no','think','later','maybe'], replyYes: 'Wonderful! Here is your tax refund form. Thank you so much for your purchase!', replyYesZh: '太好了！這是您的退稅表格，感謝您的購買！', replyNo: 'No problem! Come back anytime. We are always happy to help!', replyNoZh: '沒問題！歡迎隨時回來，很高興為您服務！' }
       ]
     },
     { // 7
       title: '問路與地圖 (Asking Directions)', icon: '🗺️',
-      steps: [
-        { speaker: 'app', text: 'Excuse me, you look a little lost. Do you need any help?', zh: '打擾一下，您看起來有點迷路，需要幫忙嗎？', keywords: [] },
-        { speaker: 'user', text: 'Yes, thank you so much. I am trying to find the National Museum.', zh: '是的，非常感謝。我想找國家博物館。', keywords: ['yes', 'museum', 'national', 'trying', 'find', 'go', 'where'] },
-        { speaker: 'app', text: 'It is about a ten-minute walk. Head straight down this road, then turn left at the traffic lights.', zh: '走路大約十分鐘。沿這條路直走，然後在紅綠燈左轉。', keywords: [] },
-        { speaker: 'user', text: 'I am sorry, could you repeat that? Should I turn left or right at the lights?', zh: '抱歉，可以再說一次嗎？在紅綠燈要左轉還是右轉？', keywords: ['repeat', 'left', 'right', 'turn', 'lights', 'sorry', 'again'] },
-        { speaker: 'app', text: 'Turn left. Walk about five more minutes, and it will be on your right side.', zh: '左轉。再走大約五分鐘，就在您的右手邊。', keywords: [] },
-        { speaker: 'user', text: 'Is there a subway station nearby? My feet are a bit sore from walking.', zh: '附近有地鐵站嗎？我走了一整天腳有點痠。', keywords: ['subway', 'metro', 'station', 'bus', 'nearby', 'transport', 'tired'] }
+      exchanges: [
+        { ask: 'You look a little lost! Can I help you find somewhere?', askZh: '您看起來有點迷路，需要我幫您找地方嗎？', hint: '說：Yes thank you! I am trying to find the National Museum.', model: 'Yes, thank you! I am trying to find the National Museum.', yesWords: ['yes','museum','station','hotel','mall','park','hospital','find','looking'], noWords: ['no','fine','okay'], replyYes: 'Head straight down this road, then turn left at the traffic lights. About ten minutes!', replyYesZh: '沿這條路直走，然後在紅綠燈左轉，大約十分鐘！', replyNo: 'No problem! Have a great day!', replyNoZh: '沒問題！祝您愉快！' },
+        { ask: 'Turn left at the lights, then five minutes. Did you follow the directions?', askZh: '在紅綠燈左轉，再走五分鐘，您清楚了嗎？', hint: '說：Could you repeat that? Should I turn left or right at the lights?', model: 'Could you repeat that please? Should I turn left or right at the traffic lights?', yesWords: ['yes','understand','got it','left','right','repeat','again','sure'], noWords: ['no',"didn't",'confused','lost',"don't understand"], replyYes: 'Great! Turn LEFT at the lights. Five minutes and you will see it on your right!', replyYesZh: '很好！紅綠燈「左轉」，五分鐘後就在右手邊！', replyNo: 'Of course! Turn LEFT at the traffic lights. Walk five minutes. It will be on your RIGHT side.', replyNoZh: '當然！紅綠燈「左轉」，走五分鐘，就在您「右手邊」。' },
+        { ask: 'Is there anything else I can help you with?', askZh: '還有什麼需要幫忙的嗎？', hint: '說：Is there a subway station nearby? My feet are sore from walking.', model: 'Is there a subway station nearby? My feet are a bit sore from walking.', yesWords: ['subway','metro','bus','restaurant','cafe','nearby','recommend','station'], noWords: ['no','fine',"that's all",'nothing','thank you'], replyYes: 'Yes! The subway station is just around the corner, two minutes away. Enjoy!', replyYesZh: '有！地鐵站就在轉角，只要兩分鐘，請慢走！', replyNo: 'You are very welcome! Enjoy your visit!', replyNoZh: '不客氣！祝您旅途愉快！' }
       ]
     },
     { // 8
       title: '與外國人閒聊 (Small Talk)', icon: '👋',
-      steps: [
-        { speaker: 'app', text: 'Hi there! Are you enjoying your time here? Is this your first visit?', zh: '你好！您在這裡玩得開心嗎？這是您第一次來嗎？', keywords: [] },
-        { speaker: 'user', text: 'Not my first time, actually. I have been here twice before and I love it.', zh: '其實不是第一次了。我以前來過兩次，我很喜歡這裡。', keywords: ['first', 'before', 'twice', 'love', 'visit', 'been', 'not'] },
-        { speaker: 'app', text: 'That is wonderful! Where are you from originally?', zh: '太棒了！您原本從哪裡來？', keywords: [] },
-        { speaker: 'user', text: 'I am from Taiwan. I am retired now and I enjoy travelling around the world.', zh: '我來自台灣。我現在退休了，喜歡環遊世界。', keywords: ['taiwan', 'from', 'retired', 'travel', 'enjoy', 'world'] },
-        { speaker: 'app', text: 'How wonderful! What are you planning to see while you are here?', zh: '真棒！您計劃在這裡參觀什麼？', keywords: [] },
-        { speaker: 'user', text: 'I would like to explore the old town and try as much local food as possible.', zh: '我想探索舊城區，並盡量嘗試當地食物。', keywords: ['explore', 'old', 'town', 'food', 'local', 'try', 'see'] },
-        { speaker: 'app', text: 'You will absolutely love it! Do you have any restaurant recommendations you need?', zh: '您一定會很喜歡的！需要我推薦餐廳嗎？', keywords: [] },
-        { speaker: 'user', text: 'That would be very helpful. Thank you so much for your kindness!', zh: '那非常有幫助，非常感謝您的熱心！', keywords: ['helpful', 'thank', 'appreciate', 'kindness', 'yes', 'please', 'great'] }
+      exchanges: [
+        { ask: 'Hi there! Are you enjoying your time here? Is this your first visit?', askZh: '你好！您在這裡玩得開心嗎？這是您第一次來嗎？', hint: '說：Not my first time. I have been here twice before and I love it.', model: 'Not my first time actually. I have been here twice before and I love it.', yesWords: ['first','yes','first time','new to'], noWords: ['not first','been before','twice','second','third','many times','love it'], replyYes: 'Oh welcome for the first time! You will absolutely love it here. Where are you from?', replyYesZh: '歡迎第一次來！您一定會愛上這裡的，您從哪裡來？', replyNo: 'That is wonderful! You must really love it here. Where are you from originally?', replyNoZh: '太棒了！您一定很喜歡這裡，您從哪裡來？' },
+        { ask: 'Where are you from? And what brought you to travel?', askZh: '您從哪裡來？是什麼讓您喜歡旅遊的？', hint: '說：I am from Taiwan. I am retired and I enjoy travelling around the world.', model: 'I am from Taiwan. I am retired now and I enjoy travelling around the world.', yesWords: ['taiwan','japan','from','retired','travel','enjoy','love','world'], noWords: [], replyYes: 'How wonderful! Taiwan is beautiful! What are you planning to see here?', replyYesZh: '太棒了！台灣很美！您計劃在這裡參觀什麼？', replyNo: 'That sounds amazing! What do you enjoy most about travelling?', replyNoZh: '聽起來很棒！您最喜歡旅遊的什麼？' },
+        { ask: 'What are you planning to do while you are here?', askZh: '您計劃在這裡做什麼？', hint: '說：I would like to explore the old town and try as much local food as possible.', model: 'I would like to explore the old town and try as much local food as possible.', yesWords: ['explore','old town','food','local','museum','sightseeing','visit','try'], noWords: ["don't know",'not sure','relaxing'], replyYes: 'That sounds fantastic! You will love the food here. Would you like any recommendations?', replyYesZh: '聽起來太棒了！您一定會喜歡這裡的食物，需要我推薦嗎？', replyNo: 'That is perfectly fine! Relaxing is sometimes the best vacation. Enjoy!', replyNoZh: '這完全沒問題！放鬆有時才是最好的假期，好好享受！' }
       ]
     },
     { // 9
       title: '景點買票 (Buying Tickets)', icon: '🎡',
-      steps: [
-        { speaker: 'app', text: 'Welcome! How many tickets would you like today?', zh: '歡迎！您今天需要幾張票？', keywords: [] },
-        { speaker: 'user', text: 'Two adult tickets please. Do you offer any senior citizen discount?', zh: '兩張成人票，謝謝。有敬老優惠嗎？', keywords: ['two', 'adult', 'tickets', 'senior', 'discount', 'elderly', 'please'] },
-        { speaker: 'app', text: 'Yes, visitors over sixty-five get twenty percent off with valid ID.', zh: '有的，六十五歲以上出示有效證件可享八折優惠。', keywords: [] },
-        { speaker: 'user', text: 'Here is my passport. What time does the last guided tour begin?', zh: '這是我的護照。最後一場導覽幾點開始？', keywords: ['here', 'passport', 'id', 'last', 'tour', 'time', 'begin', 'start'] },
-        { speaker: 'app', text: 'The last guided tour starts at four-thirty and lasts about ninety minutes.', zh: '最後一場導覽下午四點半開始，大約九十分鐘。', keywords: [] },
-        { speaker: 'user', text: 'Perfect. Can I also get an audio guide in Mandarin Chinese?', zh: '很好。可以提供普通話的語音導覽嗎？', keywords: ['audio', 'guide', 'chinese', 'mandarin', 'headset', 'language', 'yes'] }
+      exchanges: [
+        { ask: 'Welcome! How many tickets would you like today?', askZh: '歡迎！您今天需要幾張票？', hint: '說：Two adult tickets please. Do you offer any senior citizen discount?', model: 'Two adult tickets please. Do you offer any senior citizen discount?', yesWords: ['two','one','three','adult','tickets','senior','discount','elderly','please'], noWords: [], replyYes: 'Yes! Visitors over sixty-five get twenty percent off with valid ID. Do you have your passport?', replyYesZh: '有的！六十五歲以上出示有效證件可享八折，您有護照嗎？', replyNo: 'Of course! Two adult tickets. That will be thirty dollars.', replyNoZh: '當然！兩張成人票，三十元。' },
+        { ask: 'May I see your ID for the senior discount?', askZh: '可以看一下您的證件享受敬老優惠嗎？', hint: '說：Here is my passport. What time does the last guided tour begin?', model: 'Here is my passport. What time does the last guided tour begin?', yesWords: ['here','passport','id','card','tour','time','last','guided','begin','start'], noWords: ["don't have",'forgot','left','lost'], replyYes: 'Thank you! The last guided tour starts at four-thirty. It lasts about ninety minutes.', replyYesZh: '謝謝！最後一場導覽四點半開始，約九十分鐘。', replyNo: 'No problem! Without ID I cannot apply the discount. Full price is thirty dollars.', replyNoZh: '沒問題！沒有證件就不能打折，全價是三十元。' },
+        { ask: 'Can I help you with anything else before your visit?', askZh: '參觀前還有什麼需要幫忙的嗎？', hint: '說：Can I also get an audio guide in Mandarin Chinese please?', model: 'Can I also get an audio guide in Mandarin Chinese, please?', yesWords: ['audio','guide','chinese','mandarin','headset','map','brochure','yes'], noWords: ['no',"that's all",'nothing','fine','good'], replyYes: 'Of course! Here is your Mandarin audio guide. Enjoy your visit!', replyYesZh: '當然！這是您的普通話語音導覽，請好好享受！', replyNo: 'Perfect! Enjoy your visit! The entrance is to your right.', replyNoZh: '很好！祝您參觀愉快！入口在您的右邊。' }
       ]
     },
     { // 10
       title: '搭地鐵公車 (Public Transport)', icon: '🚇',
-      steps: [
-        { speaker: 'app', text: 'Hello! Can I help you with anything?', zh: '你好！有什麼需要幫忙的嗎？', keywords: [] },
-        { speaker: 'user', text: 'Yes please. I need to get to the central railway station. Which line should I take?', zh: '是的，麻煩了。我需要去中央火車站，應該搭哪條線？', keywords: ['central', 'station', 'railway', 'line', 'take', 'which', 'how'] },
-        { speaker: 'app', text: 'Take the blue line from this platform. Central Station is four stops from here.', zh: '從這個月台搭藍線，中央站是這裡的第四站。', keywords: [] },
-        { speaker: 'user', text: 'How long does it take? And do I need to transfer anywhere?', zh: '需要多少時間？需要在哪裡換車嗎？', keywords: ['long', 'time', 'transfer', 'change', 'direct', 'how', 'minutes'] },
-        { speaker: 'app', text: 'About twelve minutes. It is a direct service with no transfers needed.', zh: '大約十二分鐘，是直達，不需要換車。', keywords: [] },
-        { speaker: 'user', text: 'Can I pay using my contactless credit card, or do I need to buy a ticket?', zh: '可以用感應信用卡付款，還是需要買票？', keywords: ['card', 'contactless', 'credit', 'pay', 'ticket', 'buy', 'tap'] }
+      exchanges: [
+        { ask: 'Hello! You look like you need some help. Where are you trying to go?', askZh: '你好！您看起來需要幫忙，請問要去哪裡？', hint: '說：I need to get to the central railway station. Which line should I take?', model: 'Yes please. I need to get to the central railway station. Which line should I take?', yesWords: ['station','central','airport','hotel','mall','line','take','which','railway'], noWords: [], replyYes: 'Take the blue line from this platform! Central Station is four stops from here.', replyYesZh: '從這個月台搭藍線！中央站是這裡的第四站。', replyNo: 'No problem, take your time. Which station are you looking for?', replyNoZh: '沒問題，您慢慢來，您在找哪個站？' },
+        { ask: 'Central Station is four stops on the blue line. Any questions?', askZh: '中央站是藍線第四站，有什麼問題嗎？', hint: '說：How long does it take? And do I need to transfer anywhere?', model: 'How long does it take? And do I need to transfer anywhere?', yesWords: ['long','time','transfer','change','direct','minutes','how'], noWords: ['no','fine','okay','understood'], replyYes: 'About twelve minutes. It is direct, no transfers needed. Very convenient!', replyYesZh: '大約十二分鐘，直達不需換車，非常方便！', replyNo: 'Great! No transfers needed. Just four stops, twelve minutes. Enjoy your ride!', replyNoZh: '很好！不需要換車，就四站，十二分鐘，搭車順利！' },
+        { ask: 'How would you like to pay for your ticket today?', askZh: '您想怎麼付票費？', hint: '說：Can I pay using my contactless credit card? Or do I need to buy a ticket?', model: 'Can I pay using my contactless credit card, or do I need to buy a ticket?', yesWords: ['card','contactless','credit','tap','pay','buy','ticket','cash'], noWords: [], replyYes: 'Yes! Just tap your contactless card directly at the gate. Very easy and convenient!', replyYesZh: '可以！直接在閘門感應信用卡，非常方便！', replyNo: 'You can buy a ticket from the machine here. It accepts both cash and cards.', replyNoZh: '您可以在這裡的機器買票，接受現金和信用卡。' }
       ]
     },
     { // 11
       title: '緊急求助 (Emergency)', icon: '🆘',
-      steps: [
-        { speaker: 'app', text: 'Emergency services. What is your emergency, please?', zh: '緊急服務，請問有什麼緊急情況？', keywords: [] },
-        { speaker: 'user', text: 'My wallet and passport were stolen at the train station just now.', zh: '我的錢包和護照剛才在火車站被偷了。', keywords: ['stolen', 'wallet', 'passport', 'lost', 'taken', 'robbery', 'theft', 'station'] },
-        { speaker: 'app', text: 'I understand. Are you physically safe right now? Where exactly are you?', zh: '我了解了。您現在人身安全嗎？您確切在哪裡？', keywords: [] },
-        { speaker: 'user', text: 'Yes, I am safe. I am standing at the main entrance of Central Station.', zh: '是的，我很安全。我站在中央車站的主入口。', keywords: ['safe', 'central', 'station', 'entrance', 'standing', 'main'] },
-        { speaker: 'app', text: 'Please stay there. An officer will arrive in ten minutes. Do you have your travel insurance details?', zh: '請待在那裡，十分鐘內會有警察到達。您有旅遊保險資料嗎？', keywords: [] },
-        { speaker: 'user', text: 'Yes. I have a photo of my insurance card on my phone. The policy number is...', zh: '有的。我手機裡有保險卡的照片，保單號碼是...', keywords: ['yes', 'insurance', 'phone', 'photo', 'card', 'policy', 'number'] }
+      exchanges: [
+        { ask: 'Emergency services. What is your emergency, please?', askZh: '緊急服務，請問有什麼緊急情況？', hint: '說：My wallet and passport were stolen at the train station just now.', model: 'My wallet and passport were stolen at the train station just now.', yesWords: ['stolen','lost','missing','wallet','passport','bag','robbery','theft','help','hurt','sick'], noWords: [], replyYes: 'Oh no! Are you physically safe right now? Where exactly are you?', replyYesZh: '不好了！您現在人身安全嗎？您確切在哪裡？', replyNo: 'I understand. Please describe your emergency so I can help you right away.', replyNoZh: '我了解，請描述您的緊急情況讓我幫助您。' },
+        { ask: 'Are you physically safe right now? Where are you?', askZh: '您現在人身安全嗎？您在哪裡？', hint: '說：Yes, I am safe. I am at the main entrance of Central Station.', model: 'Yes, I am safe. I am standing at the main entrance of Central Station.', yesWords: ['safe','okay','fine','central','station','entrance','street','hotel','here'], noWords: ['no','hurt','injured','danger','not safe'], replyYes: 'Good, please stay there. An officer will arrive in ten minutes. Do you have travel insurance?', replyYesZh: '好的，請待在那裡，十分鐘內警察到達，您有旅遊保險嗎？', replyNo: 'This is serious! I am sending help immediately. Stay on the line with me!', replyNoZh: '這很嚴重！我馬上派人過去，請繼續保持通話！' },
+        { ask: 'Do you have your travel insurance details with you?', askZh: '您有旅遊保險資料嗎？', hint: '說：Yes, I have a photo of my insurance card on my phone.', model: 'Yes, I have a photo of my insurance card on my phone. The policy number is on the card.', yesWords: ['yes','have','photo','phone','insurance','card','policy','number'], noWords: ['no','lost',"don't have",'stolen','wallet'], replyYes: 'Great! Please show that to the officer when they arrive. Help is on the way, stay calm!', replyYesZh: '很好！警察到時請出示給他們，救援正在路上，保持冷靜！', replyNo: "That's okay! The officer can help you contact your insurance company. Stay calm, help is coming!", replyNoZh: '沒關係！警察可以幫您聯繫保險公司，保持冷靜，救援正在路上！' }
       ]
     }
   ],
@@ -918,7 +878,7 @@ let voiceCommandMode = false;
 // 課程狀態
 let lessonState = { level: '', words: [], index: 0, score: 0 };
 let pronState = { category: '', words: [], index: 0, score: 0 };
-let convState = { scenarioIdx: 0, steps: [], stepIdx: 0 };
+let convState = { scenarioIdx: 0, exchanges: [], exchangeIdx: 0, errors: [] };
 let listState = { type: '', questions: [], index: 0, score: 0 };
 
 // ===== 初始化 =====
@@ -1014,13 +974,23 @@ function initSpeechRecognition() {
   };
 }
 
-// ===== TTS Engine（含 Chrome Bug 修復）=====
-let ttsPendingTimeout = null;  // 追蹤待執行的 speak timeout
-let ttsHeartbeatTimer = null;  // Chrome 15 秒靜默 bug 修復計時器
+// ===== 平台偵測 =====
+// iOS 上所有瀏覽器（含 Edge）都被 Apple 強制使用 WebKit 引擎
+// WebKit 的 speechSynthesis 行為與 Chrome/Android 完全不同：
+//   1. 沒有 15 秒靜默 bug，不需要心跳
+//   2. pause()+resume() 心跳在 iOS 上反而造成電子雜音和跳針
+//   3. cancel() 後需要更長的緩衝等待時間（300ms）
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-// Fix 2：Chrome 會在約 15 秒後靜默暫停 speechSynthesis
-// 每 10 秒 pause()+resume() 讓瀏覽器保持活躍
+// ===== TTS Engine =====
+let ttsPendingTimeout = null;
+let ttsHeartbeatTimer = null;
+
+// Chrome/Android only：每 10 秒 pause()+resume() 防止 15 秒靜默 bug
+// iOS 上絕對不能呼叫，否則造成跳針電子音
 function startTTSHeartbeat() {
+  if (isIOS) return; // iOS WebKit 不需要也不能用心跳
   if (ttsHeartbeatTimer) clearInterval(ttsHeartbeatTimer);
   ttsHeartbeatTimer = setInterval(() => {
     if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
@@ -1031,38 +1001,33 @@ function startTTSHeartbeat() {
 }
 
 function speak(text, lang = 'en', rate = null, onEnd = null) {
-  // Fix 3：取消所有待發的 speak，避免多個 timeout 互相衝突
-  if (ttsPendingTimeout) {
-    clearTimeout(ttsPendingTimeout);
-    ttsPendingTimeout = null;
-  }
-  if (ttsHeartbeatTimer) {
-    clearInterval(ttsHeartbeatTimer);
-    ttsHeartbeatTimer = null;
-  }
+  if (ttsPendingTimeout) { clearTimeout(ttsPendingTimeout); ttsPendingTimeout = null; }
+  if (ttsHeartbeatTimer) { clearInterval(ttsHeartbeatTimer); ttsHeartbeatTimer = null; }
 
-  // 先 cancel 當前播放
   window.speechSynthesis.cancel();
 
-  // Fix 1：cancel() 後必須等 120ms 讓 Chrome 清空音訊緩衝
-  // 直接在 cancel() 後 speak() 會產生電子雜音與破音
+  // iOS 需要更長的緩衝等待（300ms），Android/Chrome 用 120ms 即可
+  // iOS 的 WebKit 音訊引擎在 cancel() 後需要更多時間重置
+  const bufferDelay = isIOS ? 320 : 120;
+
   ttsPendingTimeout = setTimeout(() => {
     ttsPendingTimeout = null;
 
     const utter = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
 
-    // Fix：rate 用 !== null 判斷，避免 rate=0 被誤判為 falsy
     const r = (rate !== null && rate !== undefined) ? rate : settings.rate;
-    utter.rate  = Math.min(Math.max(parseFloat(r) || 1.0, 0.5), 2.0);
+    utter.rate   = Math.min(Math.max(parseFloat(r) || 1.0, 0.5), 2.0);
     utter.volume = parseFloat(settings.volume) || 1.0;
     utter.pitch  = 1.0;
 
     if (lang === 'zh') {
       utter.lang = 'zh-TW';
-      // 優先使用 Microsoft Edge 神經語音（真人等級）
       const zhVoice =
         voices.find(v => v.name === settings.zhVoice) ||
+        // iOS：優先選 Meijia（美嘉，iOS 內建最佳中文語音）
+        voices.find(v => /Meijia|Mei-Jia/i.test(v.name)) ||
+        // Android Edge：Microsoft 神經語音
         voices.find(v => /Hsiao-Chen|Yun-Jhe|HsiaoChen|YunJhe/i.test(v.name)) ||
         voices.find(v => v.lang === 'zh-TW' && /natural|neural|online/i.test(v.name)) ||
         voices.find(v => v.lang === 'zh-TW') ||
@@ -1072,9 +1037,11 @@ function speak(text, lang = 'en', rate = null, onEnd = null) {
       if (zhVoice) utter.voice = zhVoice;
     } else {
       utter.lang = 'en-US';
-      // 優先使用 Microsoft Edge 神經語音（Aria/Jenny/Davis 等，真人等級）
       const enVoice =
         voices.find(v => v.name === settings.enVoice) ||
+        // iOS：優先選 Samantha（iOS 最佳英文語音，比預設清晰）
+        voices.find(v => /Samantha/i.test(v.name) && isIOS) ||
+        // Android Edge：Microsoft 神經語音
         voices.find(v => /Aria|Jenny|Davis|Guy|Emma|Brian/i.test(v.name) && /natural|online/i.test(v.name)) ||
         voices.find(v => v.lang === 'en-US' && /natural|neural|online/i.test(v.name)) ||
         voices.find(v => v.lang === 'en-GB' && /natural|neural|online/i.test(v.name)) ||
@@ -1084,23 +1051,21 @@ function speak(text, lang = 'en', rate = null, onEnd = null) {
       if (enVoice) utter.voice = enVoice;
     }
 
-    // Fix 2：開始播放時啟動心跳，防止 Chrome 靜默暫停
-    utter.onstart = () => startTTSHeartbeat();
+    // 心跳只給 Chrome/Android 使用，iOS 完全跳過
+    utter.onstart = () => { if (!isIOS) startTTSHeartbeat(); };
 
     utter.onend = () => {
       if (ttsHeartbeatTimer) { clearInterval(ttsHeartbeatTimer); ttsHeartbeatTimer = null; }
       if (onEnd) onEnd();
     };
 
-    // Fix：onerror 區分「被我們主動 cancel」和「真正錯誤」
-    // interrupted / canceled 是正常中斷，不應觸發 onEnd
     utter.onerror = (e) => {
       if (ttsHeartbeatTimer) { clearInterval(ttsHeartbeatTimer); ttsHeartbeatTimer = null; }
       if (e.error !== 'interrupted' && e.error !== 'canceled' && onEnd) onEnd();
     };
 
     window.speechSynthesis.speak(utter);
-  }, 120); // 120ms 讓 Chrome 音訊緩衝完全清空
+  }, bufferDelay);
 }
 
 function speakSlow(text, lang = 'en') {
@@ -1245,23 +1210,70 @@ function startLessonRecording() {
 
 function gradeLessonAnswer(result) {
   const w = lessonState.words[lessonState.index];
-  const target = w.word.toLowerCase().replace(/[^a-z\s]/g, '');
-  const got = result.toLowerCase().replace(/[^a-z\s]/g, '');
+  const target = w.word.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+
+  // 1. 偵測非英文輸入（說了中文或完全沒有英文字母）
+  const hasChinese = /[\u4e00-\u9fff\u3100-\u312f]/.test(result);
+  const hasEnglish = /[a-zA-Z]/.test(result);
+  if (hasChinese || !hasEnglish) {
+    setLessonStatus('❌ 請說英文！這個詞是：' + w.word, 'warning');
+    speak('Please say it in English.', 'en', null, () => {
+      speak('請說英文喔！正確答案是：', 'zh', null, () => {
+        speak(w.word, 'en', 0.7);
+      });
+    });
+    return;
+  }
+
+  const got = result.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+  const targetWords = target.split(/\s+/);
+  const gotWords = got.split(/\s+/);
+  const isSingleWord = targetWords.length === 1;
+  // 2. 更嚴格的相似度門檻：單字85%，句子78%
+  const threshold = isSingleWord ? 0.82 : 0.75;
   const sim = similarity(target, got);
 
-  if (sim >= 0.6 || got.includes(target.split(' ')[0])) {
-    setLessonStatus('✅ 太棒了！說得很好！', 'success');
-    speak('Great job! 說得很好！', 'en', null, () => {
-      speak('很棒喔！', 'zh', null, () => {
+  // 3. 逐字比對，找出說錯的字
+  const wrongWords = [];
+  targetWords.forEach(tw => {
+    const matched = gotWords.find(gw => similarity(tw, gw) >= 0.75);
+    if (!matched) wrongWords.push(tw);
+  });
+
+  if (sim >= threshold && wrongWords.length === 0) {
+    setLessonStatus('✅ 太棒了！說得非常準確！', 'success');
+    speak('Perfect! Great job!', 'en', null, () => {
+      speak('說得非常好！', 'zh', null, () => {
         lessonState.score++;
         addProgress(1);
         setTimeout(() => { lessonState.index++; showLessonWord(); }, 600);
       });
     });
+  } else if (wrongWords.length > 0) {
+    // 4. 說出哪些字說錯了，並逐一慢速示範
+    const coachList = wrongWords.slice(0, 2);
+    setLessonStatus('⚠️ 這些詞需要再練習：' + coachList.join('、'), 'warning');
+    function coachWord(idx) {
+      if (idx >= coachList.length) {
+        speak('現在請再試一次！', 'zh');
+        return;
+      }
+      const ww = coachList[idx];
+      speak('The word is: ' + ww, 'en', null, () => {
+        speak(ww, 'en', 0.62, () => {
+          speak(ww, 'en', 0.62, () => { coachWord(idx + 1); });
+        });
+      });
+    }
+    speak('有' + coachList.length + '個詞說得不太準，讓我示範：', 'zh', null, () => {
+      coachWord(0);
+    });
   } else {
-    setLessonStatus('⚠️ 再試一次！說：' + w.word, 'warning');
-    speak('Almost! Try again. ' + w.word, 'en', null, () => {
-      speak('再試一次喔，說：' + w.zh, 'zh');
+    setLessonStatus('⚠️ 很接近了！再說一次：' + w.word, 'warning');
+    speak('Almost there! Listen carefully:', 'en', null, () => {
+      speak(w.word, 'en', 0.7, () => {
+        speak('請跟著說一次！', 'zh');
+      });
     });
   }
 }
@@ -1335,25 +1347,71 @@ function startPronRecording() {
 
 function gradePronAnswer(result) {
   const w = pronState.words[pronState.index];
-  const target = w.word.toLowerCase().replace(/[^a-z\s]/g, '');
-  const got = result.toLowerCase().replace(/[^a-z\s]/g, '');
+  const target = w.word.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+
+  // 1. 偵測非英文輸入
+  const hasChinese = /[\u4e00-\u9fff\u3100-\u312f]/.test(result);
+  const hasEnglish = /[a-zA-Z]/.test(result);
+  if (hasChinese || !hasEnglish) {
+    setPronStatus('❌ 請說英文！對照 KK 音標跟著唸！', 'warning');
+    speak('Please say the word in English!', 'en', null, () => {
+      speak('請說英文！對照 KK 音標，跟著我唸：', 'zh', null, () => {
+        speak(w.word, 'en', 0.65);
+      });
+    });
+    return;
+  }
+
+  const got = result.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+  const targetWords = target.split(/\s+/);
+  const gotWords = got.split(/\s+/);
+  const isSingleWord = targetWords.length === 1;
+  const threshold = isSingleWord ? 0.82 : 0.75;
   const sim = similarity(target, got);
 
-  if (sim >= 0.6 || got.includes(target.split(' ')[0])) {
-    setPronStatus('✅ 發音正確！Good job!', 'success');
+  // 2. 逐字比對
+  const wrongWords = [];
+  targetWords.forEach(tw => {
+    const matched = gotWords.find(gw => similarity(tw, gw) >= 0.75);
+    if (!matched) wrongWords.push(tw);
+  });
+
+  if (sim >= threshold && wrongWords.length === 0) {
+    setPronStatus('✅ 發音正確！Excellent!', 'success');
     pronState.score++;
     addProgress(1);
-    speak('Excellent!', 'en', null, () => {
-      speak('發音很棒！', 'zh', null, () => {
+    speak('Excellent pronunciation!', 'en', null, () => {
+      speak('發音非常標準！繼續保持！', 'zh', null, () => {
         if (settings.autoAdvance) {
           setTimeout(() => { pronState.index++; showPronWord(); }, 800);
         }
       });
     });
+  } else if (wrongWords.length > 0) {
+    // 3. 指出錯誤的字，慢速示範兩次
+    const coachList = wrongWords.slice(0, 2);
+    setPronStatus('⚠️ 注意這些音的發音：' + coachList.join('、'), 'warning');
+    function coachPronWord(idx) {
+      if (idx >= coachList.length) {
+        speak('現在請對照 KK 音標再試一次！', 'zh');
+        return;
+      }
+      const ww = coachList[idx];
+      speak('"' + ww + '" — 注意嘴型，跟著說：', 'en', null, () => {
+        speak(ww, 'en', 0.60, () => {
+          speak(ww, 'en', 0.60, () => { coachPronWord(idx + 1); });
+        });
+      });
+    }
+    speak('有' + coachList.length + '個音發得不太準，我來示範：', 'zh', null, () => {
+      coachPronWord(0);
+    });
   } else {
-    setPronStatus('⚠️ 再試一次！', 'warning');
-    speak('Try again! ' + w.word, 'en', null, () => {
-      speak('加油！再說一次：' + w.zh, 'zh');
+    setPronStatus('⚠️ 很接近了！再試一次！音標：' + (w.kk ? '[ ' + w.kk + ' ]' : ''), 'warning');
+    speak('Almost! Listen once more:', 'en', null, () => {
+      speak(w.word, 'en', 0.65, () => {
+        speak('請對照 KK 音標再試一次！', 'zh');
+      });
     });
   }
 }
@@ -1381,99 +1439,135 @@ function endPronunciation() {
 function startConversation(idx) {
   convState.scenarioIdx = idx;
   const scenario = DATA.conversations[idx];
-  convState.steps = scenario.steps;
-  convState.stepIdx = 0;
+  convState.exchanges = scenario.exchanges;
+  convState.exchangeIdx = 0;
+  convState.errors = [];
   document.getElementById('convMenu').style.display = 'none';
   document.getElementById('convContent').style.display = 'block';
   document.getElementById('convTitle').textContent = scenario.title;
-  speak('開始' + scenario.title.replace(/\(.*\)/, '') + '情境對話！', 'zh', null, () => {
-    setTimeout(showConvStep, 600);
+  document.getElementById('convYouSaid').textContent = '';
+  document.getElementById('convAppReply').textContent = '';
+  speak('開始' + scenario.title.replace(/\(.*\)/, '') + '情境對話！我會用英文問你問題，你用英文回答，準備好了嗎？', 'zh', null, () => {
+    setTimeout(showConvExchange, 900);
   });
 }
 
-function showConvStep() {
-  const steps = convState.steps;
-  const idx = convState.stepIdx;
-  if (idx >= steps.length) { endConversation(true); return; }
-  const step = steps[idx];
-  document.getElementById('convCounter').textContent = '第 ' + (idx + 1) + ' 步 / 共 ' + steps.length + ' 步';
-  document.getElementById('convProgress').style.width = Math.round((idx / steps.length) * 100) + '%';
-  document.getElementById('convHint').textContent = step.zh;
-  setConvStatus('', '');
+function showConvExchange() {
+  const exchanges = convState.exchanges;
+  const idx = convState.exchangeIdx;
+  if (idx >= exchanges.length) { endConversation(true); return; }
+  const ex = exchanges[idx];
+  document.getElementById('convCounter').textContent = '第 ' + (idx + 1) + ' 題 / 共 ' + exchanges.length + ' 題';
+  document.getElementById('convProgress').style.width = Math.round((idx / exchanges.length) * 100) + '%';
+  document.getElementById('convPrompt').textContent = ex.ask;
+  document.getElementById('convHint').textContent = '💡 ' + ex.hint;
+  document.getElementById('convYouSaid').textContent = '';
+  document.getElementById('convAppReply').textContent = '';
+  setConvStatus('系統說話中，請聽題目…', '');
 
-  if (step.speaker === 'app') {
-    document.getElementById('convPrompt').textContent = step.text;
-    setConvStatus('App 正在說話...', '');
-    if (settings.chineseExplain) {
-      speak(step.zh, 'zh', null, () => {
-        setTimeout(() => {
-          speak(step.text, 'en', null, () => {
-            convState.stepIdx++;
-            setTimeout(showConvStep, 500);
-          });
-        }, 400);
-      });
-    } else {
-      speak(step.text, 'en', null, () => {
-        convState.stepIdx++;
-        setTimeout(showConvStep, 500);
-      });
-    }
+  if (settings.chineseExplain) {
+    speak(ex.askZh, 'zh', null, () => {
+      setTimeout(() => {
+        speak(ex.ask, 'en', null, () => {
+          setConvStatus('🎙️ 輪到你了！請用英文回答', 'warning');
+        });
+      }, 400);
+    });
   } else {
-    document.getElementById('convPrompt').textContent = '輪到你說了！';
-    setConvStatus('請回答：' + step.zh, 'warning');
-    speak('輪到你了！請說：' + step.zh, 'zh');
+    speak(ex.ask, 'en', null, () => {
+      setConvStatus('🎙️ 輪到你了！請用英文回答', 'warning');
+    });
   }
 }
 
 function replayConvPrompt() {
-  const idx = convState.stepIdx;
-  const step = convState.steps[idx];
-  if (step) {
-    if (step.speaker === 'app') speak(step.text, 'en');
-    else speak('請說：' + step.zh, 'zh');
-  }
+  const ex = convState.exchanges[convState.exchangeIdx];
+  if (ex) speak(ex.ask, 'en');
 }
 
 function startConvRecording() {
-  const step = convState.steps[convState.stepIdx];
-  if (!step || step.speaker !== 'user') return;
-  setConvStatus('🎙️ 我在聽...', 'listening');
+  const ex = convState.exchanges[convState.exchangeIdx];
+  if (!ex) return;
+  setConvStatus('🎙️ 我在聽你說…', 'listening');
   startRecording('en-US', (result) => {
-    gradeConvAnswer(result, step);
+    gradeConvAnswer(result, ex);
   });
 }
 
-function gradeConvAnswer(result, step) {
-  const got = result.toLowerCase();
-  const matched = step.keywords.some(kw => got.includes(kw.toLowerCase()));
-
-  if (matched || result.length > 2) {
-    setConvStatus('✅ 很好！繼續！', 'success');
-    speak('Good!', 'en', null, () => {
-      speak('說得很好！', 'zh', null, () => {
-        convState.stepIdx++;
-        setTimeout(showConvStep, 600);
+function gradeConvAnswer(result, ex) {
+  // 1. 偵測非英文輸入（說中文或完全沒英文字母）
+  const hasChinese = /[\u4e00-\u9fff\u3100-\u312f]/.test(result);
+  const hasEnglish = /[a-zA-Z]/.test(result);
+  if (hasChinese || !hasEnglish) {
+    setConvStatus('❌ 對話練習請說英文！', 'warning');
+    speak('Please speak in English!', 'en', null, () => {
+      speak('對話練習要說英文喔！提示是：' + ex.hint, 'zh', null, () => {
+        speak(ex.ask, 'en', 0.78);
       });
     });
-  } else {
-    setConvStatus('⚠️ 沒聽清楚，再說一次！', 'warning');
-    speak('Please try again.', 'en', null, () => {
-      speak('我沒聽清楚，再說一次好嗎？' + step.zh, 'zh');
+    return;
+  }
+
+  // 2. 偵測 yes/no 意圖
+  const gotClean = result.toLowerCase().replace(/[^a-z\s']/g, '').trim();
+  const yesHit = ex.yesWords.some(w => gotClean.includes(w.toLowerCase()));
+  const noHit  = ex.noWords.some(w => gotClean.includes(w.toLowerCase()));
+  const isPositive = yesHit && !noHit;
+  const isNegative = noHit && !yesHit;
+
+  // 3. 顯示你說了什麼
+  document.getElementById('convYouSaid').textContent = '🗣️ 你說：' + result;
+
+  // 4. 逐字比對找出錯誤，記錄進 errors 陣列
+  const modelClean = ex.model.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+  const modelWords = modelClean.split(/\s+/).filter(w => w.length > 3);
+  const wrongWords = modelWords.filter(mw =>
+    !gotClean.split(/\s+/).find(gw => similarity(mw, gw) >= 0.75)
+  );
+  const overallSim = similarity(modelClean, gotClean);
+  if (overallSim < 0.55 || wrongWords.length >= 3) {
+    convState.errors.push({
+      idx: convState.exchangeIdx + 1,
+      question: ex.ask,
+      said: result,
+      model: ex.model,
+      wrongWords: wrongWords.slice(0, 3)
     });
   }
+
+  // 5. 根據 yes/no 給出情境化回覆
+  const replyEn = isNegative ? ex.replyNo : ex.replyYes;
+  const replyZh = isNegative ? ex.replyNoZh : ex.replyYesZh;
+  setConvStatus('✅ 收到！系統正在回覆…', 'success');
+  document.getElementById('convAppReply').textContent = '💬 系統：' + replyEn;
+
+  speak(replyEn, 'en', null, () => {
+    if (settings.chineseExplain) {
+      speak(replyZh, 'zh', null, () => {
+        convState.exchangeIdx++;
+        setTimeout(showConvExchange, 900);
+      });
+    } else {
+      convState.exchangeIdx++;
+      setTimeout(showConvExchange, 900);
+    }
+  });
 }
 
 function showConvHint() {
-  const step = convState.steps[convState.stepIdx];
-  if (!step) return;
-  setConvStatus('💡 提示：' + step.text, '');
-  speak('提示是：' + step.text, 'en');
+  const ex = convState.exchanges[convState.exchangeIdx];
+  if (!ex) return;
+  setConvStatus('💡 範例答案：' + ex.model, '');
+  speak('範例答案是：', 'zh', null, () => {
+    speak(ex.model, 'en', 0.78);
+  });
 }
 
 function nextConvStep() {
-  convState.stepIdx++;
-  showConvStep();
+  convState.exchangeIdx++;
+  document.getElementById('convYouSaid').textContent = '';
+  document.getElementById('convAppReply').textContent = '';
+  showConvExchange();
 }
 
 function setConvStatus(text, type) {
@@ -1485,15 +1579,60 @@ function setConvStatus(text, type) {
 function endConversation(completed) {
   document.getElementById('convContent').style.display = 'none';
   document.getElementById('convMenu').style.display = 'block';
-  if (completed) {
-    addProgress(2);
-    speak('Wonderful! 對話練習完成！你表現得很棒！', 'en', null, () => {
-      speak('恭喜你完成對話練習！', 'zh');
-    });
-  } else {
-    speak('對話練習結束了。', 'zh');
+
+  if (!completed) {
+    speak('對話練習提前結束了，下次繼續加油！', 'zh');
+    navigateTo('conversation');
+    return;
   }
-  navigateTo('conversation');
+
+  addProgress(2);
+  const errors = convState.errors;
+
+  if (errors.length === 0) {
+    speak('太棒了！對話練習完美完成，每一題都說得很好！', 'zh', null, () => {
+      speak('Perfect! Wonderful conversation!', 'en', null, () => {
+        navigateTo('conversation');
+      });
+    });
+    return;
+  }
+
+  // 說出每個錯誤，逐題訂正
+  speak('對話練習結束！整體說得不錯，讓我告訴你有哪些地方可以更好：', 'zh', null, () => {
+    function speakError(i) {
+      if (i >= errors.length) {
+        speak('繼續練習，你會越來越好的！加油！', 'zh', null, () => {
+          navigateTo('conversation');
+        });
+        return;
+      }
+      const err = errors[i];
+      speak('第' + err.idx + '題，你說了「' + err.said + '」，', 'zh', null, () => {
+        speak('標準說法是：', 'zh', null, () => {
+          speak(err.model, 'en', 0.75, () => {
+            if (err.wrongWords.length > 0) {
+              speak('特別注意這些詞的發音：', 'zh', null, () => {
+                function coachErrWord(j) {
+                  if (j >= err.wrongWords.length) {
+                    setTimeout(() => speakError(i + 1), 600);
+                    return;
+                  }
+                  speak(err.wrongWords[j], 'en', 0.62, () => {
+                    speak(err.wrongWords[j], 'en', 0.62, () => { coachErrWord(j + 1); });
+                  });
+                }
+                coachErrWord(0);
+              });
+            } else {
+              setTimeout(() => speakError(i + 1), 600);
+            }
+          });
+        });
+      });
+    }
+    speakError(0);
+  });
 }
 
 // ===== 聽力練習 =====
