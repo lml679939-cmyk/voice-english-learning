@@ -198,23 +198,81 @@
   }
   .mic-indicator {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
+    top: 16px;
+    right: 16px;
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
-    background: #333;
-    border: 3px solid #555;
+    background: #1a3a1a;
+    border: 3px solid #44AA44;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 30px;
     z-index: 999;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(68,170,68,0.35);
+    transition: all 0.18s;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    line-height: 1;
+  }
+  .mic-indicator:hover {
+    background: #235c23;
+    border-color: #66FF66;
+    transform: scale(1.08);
+    box-shadow: 0 4px 20px rgba(68,255,68,0.45);
+  }
+  .mic-indicator .mic-label {
+    font-size: 10px;
+    color: #88CC88;
+    line-height: 1;
+    margin-top: 1px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: 0.5px;
   }
   .mic-indicator.active {
     background: #660000;
     border-color: #FF4444;
+    box-shadow: 0 4px 20px rgba(255,68,68,0.5);
     animation: pulse 0.8s infinite;
+  }
+  .mic-indicator.command-mode {
+    background: #4a3a00;
+    border-color: #FFCC00;
+    box-shadow: 0 4px 24px rgba(255,204,0,0.6);
+    animation: pulse 0.6s infinite;
+  }
+  /* 語音指令 Toast 提示框 */
+  #voiceToast {
+    position: fixed;
+    top: 96px;
+    right: 12px;
+    left: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+    background: #1a1a00;
+    border: 3px solid #FFCC00;
+    border-radius: 16px;
+    padding: 16px 20px;
+    font-size: 22px;
+    color: #FFFF00;
+    z-index: 998;
+    display: none;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(255,204,0,0.4);
+    animation: slideDown 0.2s ease;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #voiceToast .toast-heard {
+    font-size: 19px;
+    color: #AAAAAA;
+    margin-top: 6px;
   }
   .card {
     background: #1a1a1a;
@@ -254,8 +312,19 @@
 </head>
 <body>
 
-<!-- 麥克風狀態指示 -->
-<div class="mic-indicator" id="micIndicator" title="麥克風狀態">🎙️</div>
+<!-- 麥克風按鈕：點擊即可說語音指令 -->
+<button class="mic-indicator" id="micIndicator"
+  onclick="activateVoiceCommand()"
+  aria-label="點擊說語音指令"
+  title="點我說語音指令！例如：我要開始課程、返回首頁">
+  🎙️<span class="mic-label">說指令</span>
+</button>
+
+<!-- 語音指令回饋 Toast -->
+<div id="voiceToast">
+  <div id="toastStatus">🎙️ 聆聽中，請說指令…</div>
+  <div id="toastHeard" class="toast-heard"></div>
+</div>
 
 <!-- 緊急返回按鈕 -->
 <button class="home-btn" onclick="goHome()" aria-label="返回首頁（說回家）" title="返回首頁">🏠</button>
@@ -1069,59 +1138,7 @@ function startVoiceCommandListener() {
   }, 10000);
 }
 
-function processVoiceCommand(text) {
-  const t = text.toLowerCase();
-  if (t.includes('回家') || t.includes('首頁') || t.includes('返回')) { goHome(); return true; }
-  if (t.includes('開始課程') || t.includes('課程')) { navigateTo('lessons'); return true; }
-  if (t.includes('發音練習') || t.includes('發音')) { navigateTo('pronunciation'); return true; }
-  if (t.includes('對話練習') || t.includes('對話')) { navigateTo('conversation'); return true; }
-  if (t.includes('聽力練習') || t.includes('聽力')) { navigateTo('listening'); return true; }
-  if (t.includes('設定')) { navigateTo('settings'); return true; }
-  if (currentPage === 'lessons') {
-    if (t.includes('下一題') || t.includes('跳過')) { skipLessonWord(); return true; }
-    if (t.includes('跟讀') || t.includes('開始')) { startLessonRecording(); return true; }
-    if (t.includes('再說') || t.includes('再一次') || t.includes('重播')) { speakCurrentLesson(); return true; }
-    if (t.includes('慢速')) { speakCurrentLessonSlow(); return true; }
-    if (t.includes('旅遊基礎') || t.includes('基礎')) { startLesson('travel_basic'); return true; }
-    if (t.includes('進階旅遊') || t.includes('進階')) { startLesson('travel_advanced'); return true; }
-    if (t.includes('旅遊達人') || t.includes('達人')) { startLesson('travel_pro'); return true; }
-  }
-  if (currentPage === 'pronunciation') {
-    if (t.includes('下一個') || t.includes('跳過')) { nextPronWord(); return true; }
-    if (t.includes('跟讀') || t.includes('開始')) { startPronRecording(); return true; }
-    if (t.includes('慢速')) { speakCurrentPronSlow(); return true; }
-    if (t.includes('機場')) { startPronunciation('airport'); return true; }
-    if (t.includes('飯店') || t.includes('住宿')) { startPronunciation('hotel'); return true; }
-    if (t.includes('餐廳') || t.includes('點餐')) { startPronunciation('restaurant'); return true; }
-    if (t.includes('購物') || t.includes('殺價')) { startPronunciation('shopping'); return true; }
-    if (t.includes('緊急') || t.includes('急救')) { startPronunciation('emergency'); return true; }
-  }
-  if (currentPage === 'conversation') {
-    if (t.includes('回答') || t.includes('我說')) { startConvRecording(); return true; }
-    if (t.includes('再說') || t.includes('重播') || t.includes('再一次')) { replayConvPrompt(); return true; }
-    if (t.includes('提示')) { showConvHint(); return true; }
-    if (t.includes('跳過')) { nextConvStep(); return true; }
-    if (t.includes('機場報到') || t.includes('報到')) { startConversation(0); return true; }
-    if (t.includes('通關') || t.includes('海關') || t.includes('入境')) { startConversation(1); return true; }
-    if (t.includes('計程車') || t.includes('搭車')) { startConversation(2); return true; }
-    if (t.includes('飯店入住') || t.includes('入住')) { startConversation(3); return true; }
-    if (t.includes('飯店問題') || t.includes('投訴')) { startConversation(4); return true; }
-    if (t.includes('餐廳') || t.includes('點餐')) { startConversation(5); return true; }
-    if (t.includes('購物') || t.includes('殺價')) { startConversation(6); return true; }
-    if (t.includes('問路') || t.includes('地圖')) { startConversation(7); return true; }
-    if (t.includes('閒聊') || t.includes('外國人')) { startConversation(8); return true; }
-    if (t.includes('買票') || t.includes('景點')) { startConversation(9); return true; }
-    if (t.includes('地鐵') || t.includes('公車') || t.includes('交通')) { startConversation(10); return true; }
-    if (t.includes('緊急') || t.includes('求助')) { startConversation(11); return true; }
-  }
-  if (currentPage === 'listening') {
-    if (t.includes('是非題')) { startListening('yesno'); return true; }
-    if (t.includes('選擇題') || t.includes('選擇')) { startListening('choice'); return true; }
-    if (t.includes('再聽') || t.includes('再一次') || t.includes('重播')) { replayListening(); return true; }
-    if (t.includes('下一題') || t.includes('跳過')) { nextListeningQ(); return true; }
-  }
-  return false;
-}
+// processVoiceCommand 已移至上方「語音指令按鈕」區塊
 
 // ===== 導航 =====
 function navigateTo(page) {
@@ -1720,6 +1737,238 @@ function levenshtein(a, b) {
   return matrix[b.length][a.length];
 }
 
+// ===== 語音指令按鈕：點擊麥克風 =====
+let voiceCmdActive = false;
+let toastTimer = null;
+
+function playBeep(freq = 880, dur = 140, vol = 0.25) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur / 1000);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur / 1000);
+  } catch (e) {}
+}
+
+function showToast(status, heard = '', autoDismiss = 0) {
+  const toast = document.getElementById('voiceToast');
+  document.getElementById('toastStatus').textContent = status;
+  document.getElementById('toastHeard').textContent = heard;
+  toast.style.display = 'block';
+  if (toastTimer) clearTimeout(toastTimer);
+  if (autoDismiss > 0) {
+    toastTimer = setTimeout(() => { toast.style.display = 'none'; }, autoDismiss);
+  }
+}
+
+function hideToast() {
+  if (toastTimer) clearTimeout(toastTimer);
+  document.getElementById('voiceToast').style.display = 'none';
+}
+
+function activateVoiceCommand() {
+  // 若正在練習錄音中，不衝突
+  if (isRecording) {
+    showToast('⚠️ 正在錄音中，請稍後再試', '', 2000);
+    return;
+  }
+  if (voiceCmdActive) return;
+  voiceCmdActive = true;
+
+  const mic = document.getElementById('micIndicator');
+  mic.classList.add('command-mode');
+
+  // 播放「叮」提示音
+  playBeep(880, 120, 0.2);
+  setTimeout(() => playBeep(1100, 100, 0.15), 150);
+
+  showToast('🎙️ 聆聽中，請說指令…');
+
+  // 停止當前 TTS，立刻開始聽
+  window.speechSynthesis.cancel();
+
+  startRecording('zh-TW', (result) => {
+    voiceCmdActive = false;
+    mic.classList.remove('command-mode');
+
+    if (!result || result.trim() === '') {
+      playBeep(300, 200, 0.15); // 低音 = 沒聽到
+      showToast('❌ 沒有聽到，請再試一次', '', 2500);
+      return;
+    }
+
+    showToast('✅ 聽到了！', '「' + result + '」', 0);
+    playBeep(660, 80, 0.15);
+    setTimeout(() => playBeep(880, 80, 0.12), 100);
+
+    setTimeout(() => {
+      const action = processVoiceCommand(result);
+      if (!action) {
+        showToast('🤔 沒有符合的指令', '你說了：「' + result + '」', 3500);
+        speak('沒有找到對應的指令。你可以說：開始課程、返回首頁、發音練習等。', 'zh');
+      } else {
+        hideToast();
+      }
+    }, 400);
+  });
+}
+
+// ===== 強化版語音指令解析 =====
+// 支援自然中文語句（我要...、請...、帶我去...等）
+function processVoiceCommand(text) {
+  if (!text) return false;
+  const t = text.toLowerCase()
+    .replace(/我要|我想要|我想|請|帶我|帶我去|去|到|開始|進入|切換到|切換|選擇|選/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  const orig = text.toLowerCase();
+
+  // ── 全域導航 ──
+  if (/回家|首頁|返回首頁|回到首頁|home/.test(orig)) { goHome(); return true; }
+  if (/返回|上一頁|back/.test(orig) && !/返回首頁/.test(orig)) { goHome(); return true; }
+  if (/設定|setting/.test(orig)) { navigateTo('settings'); return true; }
+
+  // ── 課程 ──
+  if (/課程中心|所有課程/.test(orig)) { navigateTo('lessons'); return true; }
+  if (/開始課程|學習課程|課程/.test(t) && !/發音|對話|聽力/.test(orig)) {
+    navigateTo('lessons'); return true;
+  }
+  if (/旅遊基礎|基礎課程|初級|基礎旅遊|level\s*1|第一/.test(orig)) {
+    navigateTo('lessons');
+    setTimeout(() => startLesson('travel_basic'), 300);
+    return true;
+  }
+  if (/進階旅遊|進階課程|中級|旅遊進階|level\s*2|第二/.test(orig)) {
+    navigateTo('lessons');
+    setTimeout(() => startLesson('travel_advanced'), 300);
+    return true;
+  }
+  if (/旅遊達人|達人課程|高級|進階達人|level\s*3|第三/.test(orig)) {
+    navigateTo('lessons');
+    setTimeout(() => startLesson('travel_pro'), 300);
+    return true;
+  }
+
+  // ── 發音練習 ──
+  if (/發音練習|練習發音|發音/.test(orig) && !/對話|課程/.test(orig)) {
+    navigateTo('pronunciation'); return true;
+  }
+  if (/機場/.test(orig) && !/對話|情境/.test(orig)) {
+    navigateTo('pronunciation');
+    setTimeout(() => startPronunciation('airport'), 300);
+    return true;
+  }
+  if (/飯店|旅館|住宿/.test(orig) && !/對話|情境/.test(orig)) {
+    navigateTo('pronunciation');
+    setTimeout(() => startPronunciation('hotel'), 300);
+    return true;
+  }
+  if (/餐廳|點餐|吃飯/.test(orig) && !/對話|情境/.test(orig)) {
+    navigateTo('pronunciation');
+    setTimeout(() => startPronunciation('restaurant'), 300);
+    return true;
+  }
+  if (/購物|買東西|殺價/.test(orig) && !/對話|情境/.test(orig)) {
+    navigateTo('pronunciation');
+    setTimeout(() => startPronunciation('shopping'), 300);
+    return true;
+  }
+  if (/緊急|急救|求助|emergency/.test(orig) && !/對話|情境/.test(orig)) {
+    navigateTo('pronunciation');
+    setTimeout(() => startPronunciation('emergency'), 300);
+    return true;
+  }
+
+  // ── 對話練習 ──
+  if (/對話練習|練習對話|情境對話/.test(orig)) { navigateTo('conversation'); return true; }
+  if (/機場報到|辦理登機|check.?in/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(0), 300); return true;
+  }
+  if (/通關|海關|入境|immigration|customs/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(1), 300); return true;
+  }
+  if (/計程車|搭車|taxi/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(2), 300); return true;
+  }
+  if (/飯店入住|check.?in.*(飯店|旅館)|住進/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(3), 300); return true;
+  }
+  if (/飯店問題|飯店投訴|complaint|抱怨/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(4), 300); return true;
+  }
+  if (/餐廳.*對話|對話.*餐廳|點餐.*對話|restaurant/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(5), 300); return true;
+  }
+  if (/購物.*對話|對話.*購物|殺價.*對話|shopping/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(6), 300); return true;
+  }
+  if (/問路|找路|directions/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(7), 300); return true;
+  }
+  if (/閒聊|small.?talk|和外國人|跟外國人/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(8), 300); return true;
+  }
+  if (/買票|景點.*票|門票|ticket/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(9), 300); return true;
+  }
+  if (/地鐵|公車|捷運|交通工具|transit/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(10), 300); return true;
+  }
+  if (/緊急.*對話|求助.*對話|emergency.*对话/.test(orig)) {
+    navigateTo('conversation'); setTimeout(() => startConversation(11), 300); return true;
+  }
+
+  // ── 聽力練習 ──
+  if (/聽力練習|練習聽力|聽力/.test(orig)) { navigateTo('listening'); return true; }
+  if (/是非題|yes.*no|對錯題/.test(orig)) {
+    navigateTo('listening'); setTimeout(() => startListening('yesno'), 300); return true;
+  }
+  if (/選擇題|選擇回答/.test(orig)) {
+    navigateTo('listening'); setTimeout(() => startListening('choice'), 300); return true;
+  }
+
+  // ── 練習中指令 ──
+  if (/下一題|下一個|跳過|next|skip/.test(orig)) {
+    if (currentPage === 'lessons') { skipLessonWord(); return true; }
+    if (currentPage === 'pronunciation') { nextPronWord(); return true; }
+    if (currentPage === 'conversation') { nextConvStep(); return true; }
+    if (currentPage === 'listening') { nextListeningQ(); return true; }
+  }
+  if (/再說一次|重播|再講一次|repeat|again/.test(orig)) {
+    if (currentPage === 'lessons') { speakCurrentLesson(); return true; }
+    if (currentPage === 'pronunciation') { speakCurrentPron(); return true; }
+    if (currentPage === 'conversation') { replayConvPrompt(); return true; }
+    if (currentPage === 'listening') { replayListening(); return true; }
+  }
+  if (/慢速|慢慢說|slow/.test(orig)) {
+    if (currentPage === 'lessons') { speakCurrentLessonSlow(); return true; }
+    if (currentPage === 'pronunciation') { speakCurrentPronSlow(); return true; }
+  }
+  if (/跟讀|我來說|我說|開始錄音|record/.test(orig)) {
+    if (currentPage === 'lessons') { startLessonRecording(); return true; }
+    if (currentPage === 'pronunciation') { startPronRecording(); return true; }
+    if (currentPage === 'conversation') { startConvRecording(); return true; }
+    if (currentPage === 'listening') { startListenRecording(); return true; }
+  }
+  if (/提示|hint|answer/.test(orig)) {
+    if (currentPage === 'conversation') { showConvHint(); return true; }
+  }
+  if (/結束|離開|stop|end|quit/.test(orig)) {
+    if (currentPage === 'lessons') { endLesson(); return true; }
+    if (currentPage === 'pronunciation') { endPronunciation(); return true; }
+    if (currentPage === 'conversation') { endConversation(false); return true; }
+    if (currentPage === 'listening') { endListening(false); return true; }
+  }
+
+  return false;
+}
+
 // ===== 鍵盤快捷鍵 =====
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { goHome(); }
@@ -1732,23 +1981,13 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ===== 長按語音指令 =====
+// 長按空白區域也可觸發語音指令（行動裝置）
 let longPressTimer = null;
 document.addEventListener('touchstart', (e) => {
   if (e.target.closest('button')) return;
-  longPressTimer = setTimeout(() => {
-    speak('語音指令模式。請說出你要做的事。', 'zh', null, () => {
-      startRecording('zh-TW', (result) => {
-        if (!processVoiceCommand(result)) {
-          speak('沒有找到對應的指令，請再試一次。', 'zh');
-        }
-      });
-    });
-  }, 800);
+  longPressTimer = setTimeout(() => activateVoiceCommand(), 700);
 });
-document.addEventListener('touchend', () => {
-  clearTimeout(longPressTimer);
-});
+document.addEventListener('touchend', () => clearTimeout(longPressTimer));
 
 // ===== Service Worker (PWA) =====
 const SW_CODE = `
