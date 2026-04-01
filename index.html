@@ -933,34 +933,88 @@ function initSpeechRecognition() {
   };
 }
 
-// ===== TTS =====
-function speak(text, lang = 'en', rate = null, onEnd = null) {
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  const voices = window.speechSynthesis.getVoices();
-  const r = rate || settings.rate;
-  utter.rate = r;
-  utter.volume = settings.volume;
+// ===== TTS Engine（含 Chrome Bug 修復）=====
+let ttsPendingTimeout = null;  // 追蹤待執行的 speak timeout
+let ttsHeartbeatTimer = null;  // Chrome 15 秒靜默 bug 修復計時器
 
-  if (lang === 'zh') {
-    utter.lang = 'zh-TW';
-    const zhVoice = voices.find(v => v.name === settings.zhVoice) ||
-      voices.find(v => v.lang.startsWith('zh')) ||
-      voices.find(v => v.lang.startsWith('cmn'));
-    if (zhVoice) utter.voice = zhVoice;
-  } else {
-    utter.lang = 'en-US';
-    const enVoice = voices.find(v => v.name === settings.enVoice) ||
-      voices.find(v => v.lang.startsWith('en'));
-    if (enVoice) utter.voice = enVoice;
+// Fix 2：Chrome 會在約 15 秒後靜默暫停 speechSynthesis
+// 每 10 秒 pause()+resume() 讓瀏覽器保持活躍
+function startTTSHeartbeat() {
+  if (ttsHeartbeatTimer) clearInterval(ttsHeartbeatTimer);
+  ttsHeartbeatTimer = setInterval(() => {
+    if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }
+  }, 10000);
+}
+
+function speak(text, lang = 'en', rate = null, onEnd = null) {
+  // Fix 3：取消所有待發的 speak，避免多個 timeout 互相衝突
+  if (ttsPendingTimeout) {
+    clearTimeout(ttsPendingTimeout);
+    ttsPendingTimeout = null;
+  }
+  if (ttsHeartbeatTimer) {
+    clearInterval(ttsHeartbeatTimer);
+    ttsHeartbeatTimer = null;
   }
 
-  if (onEnd) utter.onend = onEnd;
-  window.speechSynthesis.speak(utter);
+  // 先 cancel 當前播放
+  window.speechSynthesis.cancel();
+
+  // Fix 1：cancel() 後必須等 120ms 讓 Chrome 清空音訊緩衝
+  // 直接在 cancel() 後 speak() 會產生電子雜音與破音
+  ttsPendingTimeout = setTimeout(() => {
+    ttsPendingTimeout = null;
+
+    const utter = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+
+    // Fix：rate 用 !== null 判斷，避免 rate=0 被誤判為 falsy
+    const r = (rate !== null && rate !== undefined) ? rate : settings.rate;
+    utter.rate  = Math.min(Math.max(parseFloat(r) || 1.0, 0.5), 2.0);
+    utter.volume = parseFloat(settings.volume) || 1.0;
+    utter.pitch  = 1.0;
+
+    if (lang === 'zh') {
+      utter.lang = 'zh-TW';
+      const zhVoice =
+        voices.find(v => v.name === settings.zhVoice) ||
+        voices.find(v => v.lang === 'zh-TW')          ||
+        voices.find(v => v.lang.startsWith('zh'))      ||
+        voices.find(v => v.lang.startsWith('cmn'));
+      if (zhVoice) utter.voice = zhVoice;
+    } else {
+      utter.lang = 'en-US';
+      const enVoice =
+        voices.find(v => v.name === settings.enVoice) ||
+        voices.find(v => v.lang === 'en-US')          ||
+        voices.find(v => v.lang.startsWith('en'));
+      if (enVoice) utter.voice = enVoice;
+    }
+
+    // Fix 2：開始播放時啟動心跳，防止 Chrome 靜默暫停
+    utter.onstart = () => startTTSHeartbeat();
+
+    utter.onend = () => {
+      if (ttsHeartbeatTimer) { clearInterval(ttsHeartbeatTimer); ttsHeartbeatTimer = null; }
+      if (onEnd) onEnd();
+    };
+
+    // Fix：onerror 區分「被我們主動 cancel」和「真正錯誤」
+    // interrupted / canceled 是正常中斷，不應觸發 onEnd
+    utter.onerror = (e) => {
+      if (ttsHeartbeatTimer) { clearInterval(ttsHeartbeatTimer); ttsHeartbeatTimer = null; }
+      if (e.error !== 'interrupted' && e.error !== 'canceled' && onEnd) onEnd();
+    };
+
+    window.speechSynthesis.speak(utter);
+  }, 120); // 120ms 讓 Chrome 音訊緩衝完全清空
 }
 
 function speakSlow(text, lang = 'en') {
-  speak(text, lang, Math.max(0.4, settings.rate * 0.6));
+  speak(text, lang, Math.max(0.4, (parseFloat(settings.rate) || 1.0) * 0.6));
 }
 
 // ===== 語音辨識 =====
