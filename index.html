@@ -437,6 +437,13 @@
 
     <label>🗣️ 中文語音</label>
     <select id="zhVoiceSelect" onchange="saveSettings()"></select>
+    <button class="btn-secondary" onclick="testZhVoice()" style="margin-top:6px; font-size:18px;">
+      🔊 測試目前中文語音
+    </button>
+    <div id="zhVoiceDiag" style="display:none; background:#111; border:2px solid #555; border-radius:10px; padding:12px; margin-top:8px; font-size:16px; color:#CCC; line-height:2;"></div>
+    <button class="btn-secondary" onclick="showZhVoiceList()" style="margin-top:6px; font-size:16px; background:#222;">
+      🔍 查看所有可用中文聲音
+    </button>
 
     <label>🚀 語速：<span id="rateLabel">1.0</span>x</label>
     <input type="range" id="rateSlider" min="0.5" max="1.5" step="0.1" value="1.0"
@@ -983,6 +990,49 @@ function speak(text, lang = 'en', rate = null, onEnd = null) {
 
     window.speechSynthesis.speak(utter);
   }, bufferDelay);
+}
+
+// ===== 中文語音診斷工具 =====
+function showZhVoiceList() {
+  const voices = window.speechSynthesis.getVoices();
+  const zhVoices = voices.filter(v =>
+    v.lang.startsWith('zh') || v.lang.startsWith('cmn')
+  );
+  const diag = document.getElementById('zhVoiceDiag');
+  if (zhVoices.length === 0) {
+    diag.innerHTML = '❌ 找不到任何中文語音。請確認已在 iOS 設定下載語音。';
+  } else {
+    diag.innerHTML = '📋 偵測到的中文語音：<br>' +
+      zhVoices.map((v, i) =>
+        `<span style="color:#FFD700">${i + 1}.</span> ` +
+        `<strong>${v.name}</strong>` +
+        ` <span style="color:#888">[${v.lang}]</span>` +
+        (v.localService ? ' <span style="color:#88FF88">本機</span>' : ' <span style="color:#FF8888">線上</span>') +
+        ` <button onclick="testSpecificVoice('${v.name}')" ` +
+        `style="font-size:13px; padding:2px 8px; margin-left:6px; background:#333; ` +
+        `color:#FFF; border:1px solid #555; border-radius:6px; cursor:pointer;">試聽</button>`
+      ).join('<br>');
+  }
+  diag.style.display = 'block';
+}
+
+function testSpecificVoice(voiceName) {
+  const voices = window.speechSynthesis.getVoices();
+  const v = voices.find(v => v.name === voiceName);
+  if (!v) return;
+  window.speechSynthesis.cancel();
+  setTimeout(() => {
+    const u = new SpeechSynthesisUtterance('你好，這是測試語音，請問這個聲音清不清楚？');
+    u.voice = v;
+    u.lang = v.lang;
+    u.rate = 1.0;
+    u.volume = 1.0;
+    window.speechSynthesis.speak(u);
+  }, 150);
+}
+
+function testZhVoice() {
+  speak('你好，這是目前選擇的中文語音測試，請問這個聲音清不清楚？', 'zh');
 }
 
 function speakSlow(text, lang = 'en') {
