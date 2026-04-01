@@ -1937,22 +1937,37 @@ function hideToast() {
 }
 
 function activateVoiceCommand() {
-  // 若正在練習錄音中，不衝突
-  if (isRecording) {
-    showToast('⚠️ 正在錄音中，請稍後再試', '', 2000);
+  const mic = document.getElementById('micIndicator');
+
+  // ===== 再點一次 → 取消語音指令錄音 =====
+  if (voiceCmdActive && isRecording) {
+    voiceCmdActive = false;
+    mic.classList.remove('command-mode');
+    mic.querySelector('.mic-label').textContent = '說指令';
+    playBeep(350, 180, 0.18); // 低音 = 取消
+    hideToast();
+    try { recognition.stop(); } catch(e) {}
+    // onend 會呼叫 currentCallback('') → callback 裡的 voiceCmdActive 已在上面設 false
     return;
   }
-  if (voiceCmdActive) return;
+
+  // 練習錄音（課程／對話）進行中，不互相干擾
+  if (isRecording) {
+    showToast('⚠️ 練習錄音中，請說完再按', '', 2000);
+    return;
+  }
+
+  if (voiceCmdActive) return; // 防呆
   voiceCmdActive = true;
 
-  const mic = document.getElementById('micIndicator');
   mic.classList.add('command-mode');
+  mic.querySelector('.mic-label').textContent = '點我取消';
 
   // 播放「叮」提示音
   playBeep(880, 120, 0.2);
   setTimeout(() => playBeep(1100, 100, 0.15), 150);
 
-  showToast('🎙️ 聆聽中，請說指令…');
+  showToast('🎙️ 聆聽中，請說指令… 再點一次可取消');
 
   // 停止當前 TTS，立刻開始聽
   window.speechSynthesis.cancel();
@@ -1960,6 +1975,7 @@ function activateVoiceCommand() {
   startRecording('zh-TW', (result) => {
     voiceCmdActive = false;
     mic.classList.remove('command-mode');
+    mic.querySelector('.mic-label').textContent = '說指令';
 
     if (!result || result.trim() === '') {
       playBeep(300, 200, 0.15); // 低音 = 沒聽到
