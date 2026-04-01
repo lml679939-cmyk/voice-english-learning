@@ -320,6 +320,7 @@
       <div class="progress-bar"><div class="progress-fill" id="lessonProgress" style="width:0%"></div></div>
     </div>
     <div class="word-display" id="lessonWord">準備中...</div>
+    <div style="font-size:28px; color:#FFAA33; text-align:center; padding:4px 8px; font-family:monospace; letter-spacing:1px;" id="lessonKK"></div>
     <div style="font-size:24px; color:#CCCCCC; text-align:center; padding:8px;" id="lessonTranslation"></div>
     <div class="status-box" id="lessonStatus">準備開始</div>
     <button class="btn-primary" onclick="speakCurrentLesson()" aria-label="再聽一次">🔊 再聽一次</button>
@@ -354,6 +355,7 @@
       <div style="font-size:22px; color:#44FF44;">通過：<span id="pronScore">0</span> 題</div>
     </div>
     <div class="word-display" id="pronWord">準備中...</div>
+    <div style="font-size:30px; color:#FFAA33; text-align:center; padding:4px 8px; font-family:monospace; letter-spacing:2px;" id="pronKK"></div>
     <div style="font-size:22px; color:#CCCCCC; text-align:center; padding:8px;" id="pronMeaning"></div>
     <div class="status-box" id="pronStatus">按下「聆聽」聽發音</div>
     <button class="btn-primary" onclick="speakCurrentPron()" aria-label="聆聽發音">🔊 聆聽發音</button>
@@ -464,6 +466,16 @@
     </label>
   </div>
 
+  <div class="card" style="border-color:#FFAA33; background:#1a1200;">
+    <div style="font-size:24px; color:#FFAA33; font-weight:bold;">💡 聲音品質提升秘訣</div>
+    <div style="font-size:20px; color:#CCAA66; line-height:1.8; margin-top:8px;">
+      使用 <strong style="color:#FFFF00;">Microsoft Edge 瀏覽器</strong> 開啟此 App，<br>
+      可啟用「Microsoft Aria」等<strong style="color:#FFFF00;">神經語音</strong>，<br>
+      聲音幾乎和真人一樣自然！<br>
+      <span style="color:#888; font-size:18px;">（Chrome 使用舊式合成語音，品質較差）</span>
+    </div>
+    <button class="btn-warning" style="margin-top:12px;" onclick="showBestVoice()">🔍 偵測目前最佳語音</button>
+  </div>
   <button class="btn-primary" onclick="testVoice()" aria-label="測試語音">🔊 測試語音</button>
   <button class="btn-danger" onclick="resetProgress()" aria-label="重置進度">🗑️ 重置所有進度</button>
   <button class="btn-secondary" onclick="goHome()" aria-label="返回首頁">⬅️ 返回首頁</button>
@@ -493,42 +505,42 @@
 const DATA = {
   // ── 課程：旅遊基礎（TOEIC 400 level）──
   travel_basic: [
-    { word: 'Where is the check-in counter?', zh: '報到櫃台在哪裡？' },
-    { word: 'I have a reservation under my name.', zh: '我用我的名字訂了位。' },
-    { word: 'How many bags can I check in?', zh: '我可以托運幾件行李？' },
-    { word: 'I would like a window seat, please.', zh: '我想要靠窗的座位。' },
-    { word: 'My flight departs at nine thirty.', zh: '我的班機九點半起飛。' },
-    { word: 'What terminal does my flight depart from?', zh: '我的班機從哪個航廈出發？' },
-    { word: 'Is breakfast included in the room rate?', zh: '早餐有含在房價內嗎？' },
-    { word: 'Could you call a taxi for me?', zh: '可以幫我叫計程車嗎？' },
-    { word: 'Where is the nearest subway station?', zh: '最近的地鐵站在哪裡？' },
-    { word: 'Is the hotel within walking distance?', zh: '飯店走路可以到嗎？' }
+    { word: 'Where is the check-in counter?', zh: '報到櫃台在哪裡？', kk: 'hwɛr ɪz ðə ˈtʃɛk ɪn ˈkaʊntɚ' },
+    { word: 'I have a reservation under my name.', zh: '我用我的名字訂了位。', kk: 'aɪ hæv ə ˌrɛzɚˈveʃən ˈʌndɚ maɪ nem' },
+    { word: 'How many bags can I check in?', zh: '我可以托運幾件行李？', kk: 'haʊ ˈmɛni bægz kæn aɪ tʃɛk ɪn' },
+    { word: 'I would like a window seat, please.', zh: '我想要靠窗的座位。', kk: 'aɪ wʊd laɪk ə ˈwɪndoʊ sit pliz' },
+    { word: 'My flight departs at nine thirty.', zh: '我的班機九點半起飛。', kk: 'maɪ flaɪt dɪˈpɑrts æt naɪn ˈθɜrti' },
+    { word: 'What terminal does my flight depart from?', zh: '我的班機從哪個航廈出發？', kk: 'hwɑt ˈtɜrmɪnəl dʌz maɪ flaɪt dɪˈpɑrt frɑm' },
+    { word: 'Is breakfast included in the room rate?', zh: '早餐有含在房價內嗎？', kk: 'ɪz ˈbrɛkfəst ɪnˈkludɪd ɪn ðə rum ret' },
+    { word: 'Could you call a taxi for me?', zh: '可以幫我叫計程車嗎？', kk: 'kʊd ju kɔl ə ˈtæksi fɔr mi' },
+    { word: 'Where is the nearest subway station?', zh: '最近的地鐵站在哪裡？', kk: 'hwɛr ɪz ðə ˈnɪrɪst ˈsʌbˌwe ˈsteʃən' },
+    { word: 'Is the hotel within walking distance?', zh: '飯店走路可以到嗎？', kk: 'ɪz ðə hoʊˈtɛl wɪˈðɪn ˈwɔkɪŋ ˈdɪstəns' }
   ],
   // ── 課程：進階旅遊（TOEIC 450 level）──
   travel_advanced: [
-    { word: 'I would like to declare these items.', zh: '我想申報這些物品。' },
-    { word: 'Do I need to pay any customs duty?', zh: '我需要繳關稅嗎？' },
-    { word: 'Could you upgrade my room, please?', zh: '能幫我升等房間嗎？' },
-    { word: 'The air conditioning is not working properly.', zh: '冷氣運作不正常。' },
-    { word: 'I would like to extend my stay by two nights.', zh: '我想多住兩晚。' },
-    { word: 'Can I get a late checkout until noon?', zh: '可以延後退房到中午嗎？' },
-    { word: 'I am allergic to shellfish and nuts.', zh: '我對貝類和堅果過敏。' },
-    { word: 'Could we have separate bills, please?', zh: '可以分開結帳嗎？' },
-    { word: 'Is there a direct train to the airport?', zh: '有直達機場的火車嗎？' },
-    { word: 'Could you recommend any local attractions?', zh: '能推薦一些當地景點嗎？' }
+    { word: 'I would like to declare these items.', zh: '我想申報這些物品。', kk: 'aɪ wʊd laɪk tə dɪˈklɛr ðiz ˈaɪtəmz' },
+    { word: 'Do I need to pay any customs duty?', zh: '我需要繳關稅嗎？', kk: 'du aɪ nid tə pe ˈɛni ˈkʌstəmz ˈdjuti' },
+    { word: 'Could you upgrade my room, please?', zh: '能幫我升等房間嗎？', kk: 'kʊd ju ˈʌpˌgred maɪ rum pliz' },
+    { word: 'The air conditioning is not working properly.', zh: '冷氣運作不正常。', kk: 'ði ɛr kənˈdɪʃənɪŋ ɪz nɑt ˈwɜrkɪŋ ˈprɑpɚli' },
+    { word: 'I would like to extend my stay by two nights.', zh: '我想多住兩晚。', kk: 'aɪ wʊd laɪk tə ɪkˈstɛnd maɪ ste baɪ tu naɪts' },
+    { word: 'Can I get a late checkout until noon?', zh: '可以延後退房到中午嗎？', kk: 'kæn aɪ ɡɛt ə let ˈtʃɛkaʊt ənˈtɪl nun' },
+    { word: 'I am allergic to shellfish and nuts.', zh: '我對貝類和堅果過敏。', kk: 'aɪ æm əˈlɜrdʒɪk tə ˈʃɛlˌfɪʃ ænd nʌts' },
+    { word: 'Could we have separate bills, please?', zh: '可以分開結帳嗎？', kk: 'kʊd wi hæv ˈsɛprɪt bɪlz pliz' },
+    { word: 'Is there a direct train to the airport?', zh: '有直達機場的火車嗎？', kk: 'ɪz ðɛr ə dɪˈrɛkt tren tə ði ˈɛrˌpɔrt' },
+    { word: 'Could you recommend any local attractions?', zh: '能推薦一些當地景點嗎？', kk: 'kʊd ju ˌrɛkəˈmɛnd ˈɛni ˈloʊkəl əˈtrækʃənz' }
   ],
   // ── 課程：旅遊達人（TOEIC 500 level）──
   travel_pro: [
-    { word: 'My flight has been delayed. Can I get a meal voucher?', zh: '我的班機延誤了，可以給我餐券嗎？' },
-    { word: 'I believe I was overcharged on my bill.', zh: '我覺得帳單多收了我的錢。' },
-    { word: 'What is the cancellation policy for this booking?', zh: '這個預訂的取消政策是什麼？' },
-    { word: 'Could you arrange a transfer to the city center?', zh: '能安排市中心的交通接送嗎？' },
-    { word: 'I need a receipt for business expense purposes.', zh: '我需要收據做商務費用報銷。' },
-    { word: 'Is there a currency exchange or ATM nearby?', zh: '附近有換錢或提款機嗎？' },
-    { word: 'My passport has been stolen. Where is the nearest embassy?', zh: '我的護照被偷了，最近的大使館在哪裡？' },
-    { word: 'I would like to file a complaint about the service.', zh: '我想就服務問題提出投訴。' },
-    { word: 'Could you put me on standby for an earlier flight?', zh: '能幫我排候補更早的班機嗎？' },
-    { word: 'I need to contact my travel insurance company.', zh: '我需要聯絡我的旅遊保險公司。' }
+    { word: 'My flight has been delayed. Can I get a meal voucher?', zh: '我的班機延誤了，可以給我餐券嗎？', kk: 'maɪ flaɪt hæz bɪn dɪˈled · kæn aɪ ɡɛt ə mil ˈvaʊtʃɚ' },
+    { word: 'I believe I was overcharged on my bill.', zh: '我覺得帳單多收了我的錢。', kk: 'aɪ bɪˈliv aɪ wɑz ˌoʊvɚˈtʃɑrdʒd ɑn maɪ bɪl' },
+    { word: 'What is the cancellation policy for this booking?', zh: '這個預訂的取消政策是什麼？', kk: 'hwɑt ɪz ðə ˌkænsəˈleʃən ˈpɑlɪsi fɔr ðɪs ˈbʊkɪŋ' },
+    { word: 'Could you arrange a transfer to the city center?', zh: '能安排市中心的交通接送嗎？', kk: 'kʊd ju əˈrendʒ ə ˈtrænsfɚ tə ðə ˈsɪti ˈsɛntɚ' },
+    { word: 'I need a receipt for business expense purposes.', zh: '我需要收據做商務費用報銷。', kk: 'aɪ nid ə rɪˈsit fɔr ˈbɪznɪs ɪkˈspɛns ˈpɜrpəsɪz' },
+    { word: 'Is there a currency exchange or ATM nearby?', zh: '附近有換錢或提款機嗎？', kk: 'ɪz ðɛr ə ˈkɜrənsi ɪksˈtʃendʒ ɔr ˌetiˈɛm ˈnɪrˌbaɪ' },
+    { word: 'My passport has been stolen. Where is the nearest embassy?', zh: '我的護照被偷了，最近的大使館在哪裡？', kk: 'maɪ ˈpæspɔrt hæz bɪn ˈstoʊlən · hwɛr ɪz ðə ˈnɪrɪst ˈɛmbəsi' },
+    { word: 'I would like to file a complaint about the service.', zh: '我想就服務問題提出投訴。', kk: 'aɪ wʊd laɪk tə faɪl ə kəmˈplent əˈbaʊt ðə ˈsɜrvɪs' },
+    { word: 'Could you put me on standby for an earlier flight?', zh: '能幫我排候補更早的班機嗎？', kk: 'kʊd ju pʊt mi ɑn ˈstændbɑɪ fɔr ən ˈɜrliɚ flaɪt' },
+    { word: 'I need to contact my travel insurance company.', zh: '我需要聯絡我的旅遊保險公司。', kk: 'aɪ nid tə ˈkɑntækt maɪ ˈtrævəl ɪnˈʃʊrəns ˈkʌmpəni' }
   ],
   intermediate: [
     { word: 'Could you repeat that?', zh: '可以再說一次嗎？', pronunciation: 'could yoo ree-PEET that' },
@@ -544,118 +556,118 @@ const DATA = {
   ],
   // ── 發音：機場用語 ──
   airport: [
-    { word: 'boarding pass', zh: '登機證' },
-    { word: 'departure terminal', zh: '出境航廈' },
-    { word: 'carry-on baggage', zh: '手提行李' },
-    { word: 'checked luggage', zh: '托運行李' },
-    { word: 'customs declaration', zh: '海關申報' },
-    { word: 'immigration officer', zh: '入境審查官' },
-    { word: 'connecting flight', zh: '轉機班機' },
-    { word: 'overhead compartment', zh: '頭頂置物箱' },
-    { word: 'duty-free shop', zh: '免稅商店' },
-    { word: 'security checkpoint', zh: '安全檢查站' },
-    { word: 'baggage claim area', zh: '行李提取區' },
-    { word: 'excess baggage fee', zh: '超重行李費' },
-    { word: 'window seat', zh: '靠窗座位' },
-    { word: 'aisle seat', zh: '走道座位' },
-    { word: 'flight delay', zh: '班機延誤' },
-    { word: 'Where is the check-in counter?', zh: '報到櫃台在哪裡？' },
-    { word: 'My baggage has not arrived yet.', zh: '我的行李還沒到。' },
-    { word: 'Could you put me on the waiting list?', zh: '能幫我排候補名單嗎？' },
-    { word: 'I would like to upgrade my seat.', zh: '我想升等座位。' },
-    { word: 'What gate does my flight depart from?', zh: '我的班機從哪個登機門出發？' }
+    { word: 'boarding pass', zh: '登機證', kk: 'ˈbɔrdɪŋ pæs' },
+    { word: 'departure terminal', zh: '出境航廈', kk: 'dɪˈpɑrtʃɚ ˈtɜrmɪnəl' },
+    { word: 'carry-on baggage', zh: '手提行李', kk: 'ˈkæri ɑn ˈbægɪdʒ' },
+    { word: 'checked luggage', zh: '托運行李', kk: 'tʃɛkt ˈlʌgɪdʒ' },
+    { word: 'customs declaration', zh: '海關申報', kk: 'ˈkʌstəmz ˌdɛkləˈreʃən' },
+    { word: 'immigration officer', zh: '入境審查官', kk: 'ˌɪmɪˈgreʃən ˈɑfɪsɚ' },
+    { word: 'connecting flight', zh: '轉機班機', kk: 'kəˈnɛktɪŋ flaɪt' },
+    { word: 'overhead compartment', zh: '頭頂置物箱', kk: 'ˌoʊvɚˈhɛd kəmˈpɑrtmənt' },
+    { word: 'duty-free shop', zh: '免稅商店', kk: 'ˈdjuti fri ʃɑp' },
+    { word: 'security checkpoint', zh: '安全檢查站', kk: 'sɪˈkjʊrɪti ˈtʃɛkˌpɔɪnt' },
+    { word: 'baggage claim area', zh: '行李提取區', kk: 'ˈbægɪdʒ klem ˈɛriə' },
+    { word: 'excess baggage fee', zh: '超重行李費', kk: 'ɪkˈsɛs ˈbægɪdʒ fi' },
+    { word: 'window seat', zh: '靠窗座位', kk: 'ˈwɪndoʊ sit' },
+    { word: 'aisle seat', zh: '走道座位', kk: 'aɪl sit' },
+    { word: 'flight delay', zh: '班機延誤', kk: 'flaɪt dɪˈle' },
+    { word: 'Where is the check-in counter?', zh: '報到櫃台在哪裡？', kk: 'hwɛr ɪz ðə ˈtʃɛk ɪn ˈkaʊntɚ' },
+    { word: 'My baggage has not arrived yet.', zh: '我的行李還沒到。', kk: 'maɪ ˈbægɪdʒ hæz nɑt əˈraɪvd jɛt' },
+    { word: 'Could you put me on the waiting list?', zh: '能幫我排候補名單嗎？', kk: 'kʊd ju pʊt mi ɑn ðə ˈweɪtɪŋ lɪst' },
+    { word: 'I would like to upgrade my seat.', zh: '我想升等座位。', kk: 'aɪ wʊd laɪk tə ˈʌpˌgred maɪ sit' },
+    { word: 'What gate does my flight depart from?', zh: '我的班機從哪個登機門出發？', kk: 'hwɑt ɡet dʌz maɪ flaɪt dɪˈpɑrt frɑm' }
   ],
   // ── 發音：飯店住宿 ──
   hotel: [
-    { word: 'room reservation', zh: '客房預訂' },
-    { word: 'check-in time', zh: '入住時間' },
-    { word: 'check-out time', zh: '退房時間' },
-    { word: 'complimentary breakfast', zh: '免費早餐' },
-    { word: 'room service', zh: '客房服務' },
-    { word: 'front desk', zh: '前台' },
-    { word: 'concierge', zh: '禮賓服務' },
-    { word: 'non-smoking room', zh: '禁煙房' },
-    { word: 'housekeeping service', zh: '客房清潔服務' },
-    { word: 'late checkout', zh: '延遲退房' },
-    { word: 'luggage storage', zh: '行李寄存' },
-    { word: 'wake-up call', zh: '叫醒服務' },
-    { word: 'city view', zh: '城市景觀' },
-    { word: 'ocean view', zh: '海景' },
-    { word: 'Do you have a room available?', zh: '有空房嗎？' },
-    { word: 'Is breakfast included?', zh: '有含早餐嗎？' },
-    { word: 'Could you upgrade my room?', zh: '能幫我升等房間嗎？' },
-    { word: 'I would like to extend my stay.', zh: '我想延長住宿。' },
-    { word: 'The Wi-Fi is not working.', zh: 'Wi-Fi 連不上。' },
-    { word: 'Can I have extra towels?', zh: '可以多給我幾條毛巾嗎？' }
+    { word: 'room reservation', zh: '客房預訂', kk: 'rum ˌrɛzɚˈveʃən' },
+    { word: 'check-in time', zh: '入住時間', kk: 'ˈtʃɛk ɪn taɪm' },
+    { word: 'check-out time', zh: '退房時間', kk: 'ˈtʃɛk aʊt taɪm' },
+    { word: 'complimentary breakfast', zh: '免費早餐', kk: 'ˌkɑmpləˈmɛntəri ˈbrɛkfəst' },
+    { word: 'room service', zh: '客房服務', kk: 'rum ˈsɜrvɪs' },
+    { word: 'front desk', zh: '前台', kk: 'frʌnt dɛsk' },
+    { word: 'concierge', zh: '禮賓服務', kk: 'ˌkɑnsiˈɛrʒ' },
+    { word: 'non-smoking room', zh: '禁煙房', kk: 'nɑn ˈsmoʊkɪŋ rum' },
+    { word: 'housekeeping service', zh: '客房清潔服務', kk: 'ˈhaʊsˌkipɪŋ ˈsɜrvɪs' },
+    { word: 'late checkout', zh: '延遲退房', kk: 'let ˈtʃɛkaʊt' },
+    { word: 'luggage storage', zh: '行李寄存', kk: 'ˈlʌgɪdʒ ˈstɔrɪdʒ' },
+    { word: 'wake-up call', zh: '叫醒服務', kk: 'ˈwek ʌp kɔl' },
+    { word: 'city view', zh: '城市景觀', kk: 'ˈsɪti vju' },
+    { word: 'ocean view', zh: '海景', kk: 'ˈoʊʃən vju' },
+    { word: 'Do you have a room available?', zh: '有空房嗎？', kk: 'du ju hæv ə rum əˈveɪləbəl' },
+    { word: 'Is breakfast included?', zh: '有含早餐嗎？', kk: 'ɪz ˈbrɛkfəst ɪnˈkludɪd' },
+    { word: 'Could you upgrade my room?', zh: '能幫我升等房間嗎？', kk: 'kʊd ju ˈʌpˌgred maɪ rum' },
+    { word: 'I would like to extend my stay.', zh: '我想延長住宿。', kk: 'aɪ wʊd laɪk tə ɪkˈstɛnd maɪ ste' },
+    { word: 'The Wi-Fi is not working.', zh: 'Wi-Fi 連不上。', kk: 'ðə ˈwaɪ faɪ ɪz nɑt ˈwɜrkɪŋ' },
+    { word: 'Can I have extra towels?', zh: '可以多給我幾條毛巾嗎？', kk: 'kæn aɪ hæv ˈɛkstrə ˈtaʊəlz' }
   ],
   // ── 發音：餐廳點餐 ──
   restaurant: [
-    { word: 'I have a reservation for two.', zh: '我有訂位，兩位。' },
-    { word: 'Could I see the menu, please?', zh: '可以給我看菜單嗎？' },
-    { word: 'What do you recommend?', zh: '你推薦什麼？' },
-    { word: 'I am allergic to nuts.', zh: '我對堅果過敏。' },
-    { word: 'I would like my steak medium rare.', zh: '我的牛排要五分熟。' },
-    { word: 'Could I have a refill, please?', zh: '可以幫我續杯嗎？' },
-    { word: 'Is this dish spicy?', zh: '這道菜辣嗎？' },
-    { word: 'Could we have separate bills?', zh: '可以分開結帳嗎？' },
-    { word: 'I am lactose intolerant.', zh: '我有乳糖不耐症。' },
-    { word: 'Does this contain gluten?', zh: '這個含有麩質嗎？' },
-    { word: 'Could you wrap this to go?', zh: '可以幫我打包嗎？' },
-    { word: 'Is service charge included?', zh: '含服務費嗎？' },
-    { word: 'appetizer', zh: '開胃菜' },
-    { word: 'main course', zh: '主菜' },
-    { word: 'sparkling water', zh: '氣泡水' },
-    { word: 'house wine', zh: '餐廳自選葡萄酒' },
-    { word: 'vegetarian option', zh: '素食選項' },
-    { word: 'I would like to make a reservation.', zh: '我想訂位。' },
-    { word: 'The food is excellent.', zh: '食物非常美味。' },
-    { word: 'Could I have the bill, please?', zh: '可以給我帳單嗎？' }
+    { word: 'I have a reservation for two.', zh: '我有訂位，兩位。', kk: 'aɪ hæv ə ˌrɛzɚˈveʃən fɔr tu' },
+    { word: 'Could I see the menu, please?', zh: '可以給我看菜單嗎？', kk: 'kʊd aɪ si ðə ˈmɛnju pliz' },
+    { word: 'What do you recommend?', zh: '你推薦什麼？', kk: 'hwɑt du ju ˌrɛkəˈmɛnd' },
+    { word: 'I am allergic to nuts.', zh: '我對堅果過敏。', kk: 'aɪ æm əˈlɜrdʒɪk tə nʌts' },
+    { word: 'I would like my steak medium rare.', zh: '我的牛排要五分熟。', kk: 'aɪ wʊd laɪk maɪ stek ˈmidiəm rɛr' },
+    { word: 'Could I have a refill, please?', zh: '可以幫我續杯嗎？', kk: 'kʊd aɪ hæv ə ˈrifɪl pliz' },
+    { word: 'Is this dish spicy?', zh: '這道菜辣嗎？', kk: 'ɪz ðɪs dɪʃ ˈspaɪsi' },
+    { word: 'Could we have separate bills?', zh: '可以分開結帳嗎？', kk: 'kʊd wi hæv ˈsɛprɪt bɪlz' },
+    { word: 'I am lactose intolerant.', zh: '我有乳糖不耐症。', kk: 'aɪ æm ˈlæktoʊs ɪnˈtɑlərənt' },
+    { word: 'Does this contain gluten?', zh: '這個含有麩質嗎？', kk: 'dʌz ðɪs kənˈten ˈglutn' },
+    { word: 'Could you wrap this to go?', zh: '可以幫我打包嗎？', kk: 'kʊd ju ræp ðɪs tə ɡoʊ' },
+    { word: 'Is service charge included?', zh: '含服務費嗎？', kk: 'ɪz ˈsɜrvɪs tʃɑrdʒ ɪnˈkludɪd' },
+    { word: 'appetizer', zh: '開胃菜', kk: 'ˈæpɪˌtaɪzɚ' },
+    { word: 'main course', zh: '主菜', kk: 'men kɔrs' },
+    { word: 'sparkling water', zh: '氣泡水', kk: 'ˈspɑrklɪŋ ˈwɔtɚ' },
+    { word: 'house wine', zh: '餐廳自選葡萄酒', kk: 'haʊs waɪn' },
+    { word: 'vegetarian option', zh: '素食選項', kk: 'ˌvɛdʒɪˈtɛriən ˈɑpʃən' },
+    { word: 'I would like to make a reservation.', zh: '我想訂位。', kk: 'aɪ wʊd laɪk tə mek ə ˌrɛzɚˈveʃən' },
+    { word: 'The food is excellent.', zh: '食物非常美味。', kk: 'ðə fud ɪz ˈɛksələnt' },
+    { word: 'Could I have the bill, please?', zh: '可以給我帳單嗎？', kk: 'kʊd aɪ hæv ðə bɪl pliz' }
   ],
   // ── 發音：購物殺價 ──
   shopping: [
-    { word: 'How much does this cost?', zh: '這個多少錢？' },
-    { word: 'Do you have this in a larger size?', zh: '有大一號的嗎？' },
-    { word: 'Can I try this on?', zh: '我可以試穿嗎？' },
-    { word: 'Is there a discount?', zh: '有折扣嗎？' },
-    { word: 'Do you accept credit cards?', zh: '可以刷信用卡嗎？' },
-    { word: 'What is your return policy?', zh: '退換貨政策是什麼？' },
-    { word: 'This is too expensive.', zh: '這太貴了。' },
-    { word: 'Can you give me a better price?', zh: '可以便宜一點嗎？' },
-    { word: 'I am just browsing.', zh: '我只是看看。' },
-    { word: 'Do you have any other colors?', zh: '有其他顏色嗎？' },
-    { word: 'Can I get a tax refund?', zh: '可以退稅嗎？' },
-    { word: 'This one is defective.', zh: '這個有瑕疵。' },
-    { word: 'I would like to return this item.', zh: '我想退還這個商品。' },
-    { word: 'duty-free allowance', zh: '免稅額度' },
-    { word: 'exchange rate', zh: '匯率' },
-    { word: 'souvenir shop', zh: '紀念品店' },
-    { word: 'Do you offer any discount for cash?', zh: '現金付款有折扣嗎？' },
-    { word: 'Can I get a receipt?', zh: '可以給我收據嗎？' },
-    { word: 'Is this tax-free?', zh: '這個免稅嗎？' },
-    { word: 'I will take this one.', zh: '我要買這個。' }
+    { word: 'How much does this cost?', zh: '這個多少錢？', kk: 'haʊ mʌtʃ dʌz ðɪs kɔst' },
+    { word: 'Do you have this in a larger size?', zh: '有大一號的嗎？', kk: 'du ju hæv ðɪs ɪn ə ˈlɑrdʒɚ saɪz' },
+    { word: 'Can I try this on?', zh: '我可以試穿嗎？', kk: 'kæn aɪ traɪ ðɪs ɑn' },
+    { word: 'Is there a discount?', zh: '有折扣嗎？', kk: 'ɪz ðɛr ə ˈdɪskaʊnt' },
+    { word: 'Do you accept credit cards?', zh: '可以刷信用卡嗎？', kk: 'du ju əkˈsɛpt ˈkrɛdɪt kɑrdz' },
+    { word: 'What is your return policy?', zh: '退換貨政策是什麼？', kk: 'hwɑt ɪz jɔr rɪˈtɜrn ˈpɑlɪsi' },
+    { word: 'This is too expensive.', zh: '這太貴了。', kk: 'ðɪs ɪz tu ɪkˈspɛnsɪv' },
+    { word: 'Can you give me a better price?', zh: '可以便宜一點嗎？', kk: 'kæn ju ɡɪv mi ə ˈbɛtɚ praɪs' },
+    { word: 'I am just browsing.', zh: '我只是看看。', kk: 'aɪ æm dʒʌst ˈbraʊzɪŋ' },
+    { word: 'Do you have any other colors?', zh: '有其他顏色嗎？', kk: 'du ju hæv ˈɛni ˈʌðɚ ˈkʌlɚz' },
+    { word: 'Can I get a tax refund?', zh: '可以退稅嗎？', kk: 'kæn aɪ ɡɛt ə tæks ˈrifʌnd' },
+    { word: 'This one is defective.', zh: '這個有瑕疵。', kk: 'ðɪs wʌn ɪz dɪˈfɛktɪv' },
+    { word: 'I would like to return this item.', zh: '我想退還這個商品。', kk: 'aɪ wʊd laɪk tə rɪˈtɜrn ðɪs ˈaɪtəm' },
+    { word: 'duty-free allowance', zh: '免稅額度', kk: 'ˈdjuti fri əˈlaʊəns' },
+    { word: 'exchange rate', zh: '匯率', kk: 'ɪksˈtʃendʒ ret' },
+    { word: 'souvenir shop', zh: '紀念品店', kk: 'ˌsuvəˈnɪr ʃɑp' },
+    { word: 'Do you offer any discount for cash?', zh: '現金付款有折扣嗎？', kk: 'du ju ˈɔfɚ ˈɛni ˈdɪskaʊnt fɔr kæʃ' },
+    { word: 'Can I get a receipt?', zh: '可以給我收據嗎？', kk: 'kæn aɪ ɡɛt ə rɪˈsit' },
+    { word: 'Is this tax-free?', zh: '這個免稅嗎？', kk: 'ɪz ðɪs ˈtæks fri' },
+    { word: 'I will take this one.', zh: '我要買這個。', kk: 'aɪ wɪl tek ðɪs wʌn' }
   ],
   // ── 發音：緊急狀況 ──
   emergency: [
-    { word: 'Call an ambulance, please!', zh: '請叫救護車！' },
-    { word: 'I need to see a doctor immediately.', zh: '我需要立刻看醫生。' },
-    { word: 'My passport has been stolen.', zh: '我的護照被偷了。' },
-    { word: 'Where is the nearest police station?', zh: '最近的警察局在哪裡？' },
-    { word: 'I have lost my wallet.', zh: '我的錢包不見了。' },
-    { word: 'I need to contact my embassy.', zh: '我需要聯絡我的大使館。' },
-    { word: 'I am not feeling well.', zh: '我感覺不太舒服。' },
-    { word: 'Where is the emergency exit?', zh: '緊急出口在哪裡？' },
-    { word: 'I need travel insurance assistance.', zh: '我需要旅遊保險協助。' },
-    { word: 'Can you help me find a pharmacy?', zh: '能幫我找藥局嗎？' },
-    { word: 'I have been in an accident.', zh: '我發生了意外。' },
-    { word: 'I need a translator.', zh: '我需要翻譯。' },
-    { word: 'This is an emergency.', zh: '這是緊急情況。' },
-    { word: 'I am diabetic.', zh: '我有糖尿病。' },
-    { word: 'I take medication for blood pressure.', zh: '我有服用血壓藥。' },
-    { word: 'I need to file a police report.', zh: '我需要報警備案。' },
-    { word: 'Please write down the address for me.', zh: '請幫我把地址寫下來。' },
-    { word: 'I have a severe allergy.', zh: '我有嚴重過敏。' },
-    { word: 'Please call the hotel for me.', zh: '請幫我打電話給飯店。' },
-    { word: 'My travel insurance number is...', zh: '我的旅遊保險號碼是...' }
+    { word: 'Call an ambulance, please!', zh: '請叫救護車！', kk: 'kɔl ən ˈæmbjələns pliz' },
+    { word: 'I need to see a doctor immediately.', zh: '我需要立刻看醫生。', kk: 'aɪ nid tə si ə ˈdɑktɚ ɪˈmidiɪtli' },
+    { word: 'My passport has been stolen.', zh: '我的護照被偷了。', kk: 'maɪ ˈpæspɔrt hæz bɪn ˈstoʊlən' },
+    { word: 'Where is the nearest police station?', zh: '最近的警察局在哪裡？', kk: 'hwɛr ɪz ðə ˈnɪrɪst pəˈlis ˈsteʃən' },
+    { word: 'I have lost my wallet.', zh: '我的錢包不見了。', kk: 'aɪ hæv lɔst maɪ ˈwɑlɪt' },
+    { word: 'I need to contact my embassy.', zh: '我需要聯絡我的大使館。', kk: 'aɪ nid tə ˈkɑntækt maɪ ˈɛmbəsi' },
+    { word: 'I am not feeling well.', zh: '我感覺不太舒服。', kk: 'aɪ æm nɑt ˈfilɪŋ wɛl' },
+    { word: 'Where is the emergency exit?', zh: '緊急出口在哪裡？', kk: 'hwɛr ɪz ði ɪˈmɜrdʒənsi ˈɛɡzɪt' },
+    { word: 'I need travel insurance assistance.', zh: '我需要旅遊保險協助。', kk: 'aɪ nid ˈtrævəl ɪnˈʃʊrəns əˈsɪstəns' },
+    { word: 'Can you help me find a pharmacy?', zh: '能幫我找藥局嗎？', kk: 'kæn ju hɛlp mi faɪnd ə ˈfɑrməsi' },
+    { word: 'I have been in an accident.', zh: '我發生了意外。', kk: 'aɪ hæv bɪn ɪn ən ˈæksɪdənt' },
+    { word: 'I need a translator.', zh: '我需要翻譯。', kk: 'aɪ nid ə trænsˈletɚ' },
+    { word: 'This is an emergency.', zh: '這是緊急情況。', kk: 'ðɪs ɪz ən ɪˈmɜrdʒənsi' },
+    { word: 'I am diabetic.', zh: '我有糖尿病。', kk: 'aɪ æm ˌdaɪəˈbɛtɪk' },
+    { word: 'I take medication for blood pressure.', zh: '我有服用血壓藥。', kk: 'aɪ tek ˌmɛdɪˈkeʃən fɔr blʌd ˈprɛʃɚ' },
+    { word: 'I need to file a police report.', zh: '我需要報警備案。', kk: 'aɪ nid tə faɪl ə pəˈlis rɪˈpɔrt' },
+    { word: 'Please write down the address for me.', zh: '請幫我把地址寫下來。', kk: 'pliz raɪt daʊn ði ˈædrɛs fɔr mi' },
+    { word: 'I have a severe allergy.', zh: '我有嚴重過敏。', kk: 'aɪ hæv ə sɪˈvɪr ˈælɚdʒi' },
+    { word: 'Please call the hotel for me.', zh: '請幫我打電話給飯店。', kk: 'pliz kɔl ðə hoʊˈtɛl fɔr mi' },
+    { word: 'My travel insurance number is...', zh: '我的旅遊保險號碼是...', kk: 'maɪ ˈtrævəl ɪnˈʃʊrəns ˈnʌmbɚ ɪz' }
   ],
   conversations: [
     { // 0
@@ -979,17 +991,26 @@ function speak(text, lang = 'en', rate = null, onEnd = null) {
 
     if (lang === 'zh') {
       utter.lang = 'zh-TW';
+      // 優先使用 Microsoft Edge 神經語音（真人等級）
       const zhVoice =
         voices.find(v => v.name === settings.zhVoice) ||
-        voices.find(v => v.lang === 'zh-TW')          ||
-        voices.find(v => v.lang.startsWith('zh'))      ||
+        voices.find(v => /Hsiao-Chen|Yun-Jhe|HsiaoChen|YunJhe/i.test(v.name)) ||
+        voices.find(v => v.lang === 'zh-TW' && /natural|neural|online/i.test(v.name)) ||
+        voices.find(v => v.lang === 'zh-TW') ||
+        voices.find(v => v.lang.startsWith('zh') && /natural|neural|online/i.test(v.name)) ||
+        voices.find(v => v.lang.startsWith('zh')) ||
         voices.find(v => v.lang.startsWith('cmn'));
       if (zhVoice) utter.voice = zhVoice;
     } else {
       utter.lang = 'en-US';
+      // 優先使用 Microsoft Edge 神經語音（Aria/Jenny/Davis 等，真人等級）
       const enVoice =
         voices.find(v => v.name === settings.enVoice) ||
-        voices.find(v => v.lang === 'en-US')          ||
+        voices.find(v => /Aria|Jenny|Davis|Guy|Emma|Brian/i.test(v.name) && /natural|online/i.test(v.name)) ||
+        voices.find(v => v.lang === 'en-US' && /natural|neural|online/i.test(v.name)) ||
+        voices.find(v => v.lang === 'en-GB' && /natural|neural|online/i.test(v.name)) ||
+        voices.find(v => v.lang.startsWith('en') && /natural|neural|online/i.test(v.name)) ||
+        voices.find(v => v.lang === 'en-US') ||
         voices.find(v => v.lang.startsWith('en'));
       if (enVoice) utter.voice = enVoice;
     }
@@ -1168,6 +1189,7 @@ function showLessonWord() {
   document.getElementById('lessonCounter').textContent = '第 ' + (idx + 1) + ' 題 / 共 ' + total + ' 題';
   document.getElementById('lessonProgress').style.width = Math.round((idx / total) * 100) + '%';
   document.getElementById('lessonWord').textContent = w.word;
+  document.getElementById('lessonKK').textContent = w.kk ? '[ ' + w.kk + ' ]' : '';
   document.getElementById('lessonTranslation').textContent = w.zh;
   setLessonStatus('準備好跟讀了嗎？', '');
 
@@ -1255,9 +1277,9 @@ function startPronunciation(category) {
   pronState.score = 0;
   document.getElementById('pronMenu').style.display = 'none';
   document.getElementById('pronContent').style.display = 'block';
-  const labels = { basic: '基本單字', phrases: '實用短句', numbers: '數字與時間' };
+  const labels = { airport: '機場用語', hotel: '飯店住宿', restaurant: '餐廳點餐', shopping: '購物殺價', emergency: '緊急狀況' };
   document.getElementById('pronCategory').textContent = labels[category] || category;
-  speak(labels[category] + '練習開始！我先說，你跟著說！', 'zh', null, () => {
+  speak((labels[category] || category) + '練習開始！我先說，你看著 KK 音標跟著說！', 'zh', null, () => {
     setTimeout(showPronWord, 500);
   });
 }
@@ -1271,6 +1293,7 @@ function showPronWord() {
   document.getElementById('pronProgress').style.width = Math.round((idx / words.length) * 100) + '%';
   document.getElementById('pronScore').textContent = pronState.score;
   document.getElementById('pronWord').textContent = w.word;
+  document.getElementById('pronKK').textContent = w.kk ? '[ ' + w.kk + ' ]' : '';
   document.getElementById('pronMeaning').textContent = w.zh;
   setPronStatus('按「聆聽發音」聽示範', '');
   speak(w.word, 'en');
@@ -1602,6 +1625,28 @@ function testVoice() {
   speak('Hello! Good morning! 早安！我是你的英文老師！', 'en', null, () => {
     speak('語音測試完成！聽起來怎麼樣？', 'zh');
   });
+}
+
+function showBestVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  const neural = voices.filter(v => /natural|neural|online/i.test(v.name));
+  const enNeural = neural.filter(v => v.lang.startsWith('en'));
+  const zhNeural = neural.filter(v => v.lang.startsWith('zh') || v.lang.startsWith('cmn'));
+  let msg = '';
+  if (enNeural.length > 0) {
+    msg += '✅ 偵測到高品質英文語音：' + enNeural[0].name + '\n';
+  } else {
+    msg += '⚠️ 未偵測到神經語音。建議改用 Microsoft Edge 瀏覽器以獲得真人等級語音。\n';
+  }
+  if (zhNeural.length > 0) {
+    msg += '✅ 偵測到高品質中文語音：' + zhNeural[0].name;
+  } else {
+    msg += '⚠️ 未偵測到高品質中文語音。Edge 瀏覽器有「Hsiao-Chen」真人語音。';
+  }
+  alert(msg);
+  speak(enNeural.length > 0
+    ? 'Great news! I found a high quality voice: ' + enNeural[0].name
+    : 'Please use Microsoft Edge browser for the best voice quality.', 'en');
 }
 
 function resetProgress() {
